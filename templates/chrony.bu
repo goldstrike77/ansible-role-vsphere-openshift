@@ -1,0 +1,24 @@
+variant: openshift
+version: '{{openshift_version }}.0'
+metadata:
+  name: 99-{{ item }}-chrony
+  labels:
+    machineconfiguration.openshift.io/role: {{ item }}
+storage:
+  files:
+  - path: /etc/chrony.conf
+    mode: 0644
+    overwrite: true
+    contents:
+      inline: |
+        driftfile /var/lib/chrony/drift
+        makestep 1.0 3
+        rtcsync
+        logdir /var/log/chrony
+{% if openshift_node.ntp is defined and openshift_node.ntp | length > 0 %}
+{% for i in openshift_node.ntp %}
+        server {{ i }} iburst
+{% endfor%}
+{% else %}
+        pool ntp.aliyun.com iburst
+{% endif %}

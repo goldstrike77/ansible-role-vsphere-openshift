@@ -40,6 +40,10 @@ openshift_vsphere:
 #    MIIDXzCCAkegAwIBAgILBAAAAAABIVhTCKIwDQYJKoZIhvcNAQELBQAwTDEgMB4G
 #    -----END CERTIFICATE-----
 
+# Node parameters #
+openshift_node:
+  ntp: ['ntp1.aliyun.com','ntp2.aliyun.com','ntp3.aliyun.com']# specify a list of NTP servers.
+
 # Service Mesh #
 customer: "it" # Define the customer name.
 environments: "prd" # Define the service environment.

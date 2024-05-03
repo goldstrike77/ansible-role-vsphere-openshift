@@ -1,7 +1,7 @@
 ---
 - name: Check if ignition file exists.
   stat:
-    path: "openshift/bootstrap.ign"
+    path: "ignition/bootstrap.ign"
   delegate_to: "localhost"
   register: openshift_ignition_result
 
