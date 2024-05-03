@@ -1,2 +1,12 @@
 ---
-# tasks file for ansible-role-vsphere-openshift
+- name: Check if ignition file exists.
+  stat:
+    path: "openshift/bootstrap.ign"
+  delegate_to: "localhost"
+  register: openshift_ignition_result
+
+- name: Operation for Getting ignition configs for machines.
+  block:
+    - name: Include tasks for setting up installer manifests.
+      ansible.builtin.include_tasks: "ignition.yml"
+  when: not openshift_ignition_result.stat.exists | bool

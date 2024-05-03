@@ -1,0 +1,38 @@
+---
+- name: Create a directory that will be used by the OpenShift installer to provide all the assets.
+  file:
+    dest: "openshift"
+    state: "directory"
+    mode: "0755"
+  delegate_to: "localhost"
+
+- name: Setting up install-config template for installer.
+  template:
+    src: "install-config.yaml"
+    dest: "openshift/{{ item }}"
+  delegate_to: "localhost"
+  loop:
+    - "install-config.yaml"
+    - "install-config.yaml.orig"
+
+- name: Invoking the installer to get manifests.
+  shell:
+    cmd: openshift-install create manifests --dir openshift
+  delegate_to: "localhost"
+
+- name: Remove the manifest files that define the MachineSets because create and manage these resources yourself.
+  file:
+    path: "{{ item }}"
+    state: "absent"
+  delegate_to: "localhost"
+  loop:
+    - "openshift/99_openshift-cluster-api_master-machines-0.yaml"
+    - "openshift/99_openshift-cluster-api_master-machines-1.yaml"
+    - "openshift/99_openshift-cluster-api_master-machines-2.yaml"
+    - "openshift/99_openshift-cluster-api_worker-machineset-0.yaml"
+    - "openshift/99_openshift-machine-api_master-control-plane-machine-set.yaml"
+
+- name: Invoking the installer to get manifests.
+  shell:
+    cmd: openshift-install create ignition-configs --dir openshift
+  delegate_to: "localhost"

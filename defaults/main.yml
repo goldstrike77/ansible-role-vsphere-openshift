@@ -1,2 +1,47 @@
 ---
-# defaults file for ansible-role-vsphere-openshift
+# General parameters #
+openshift_is_install: false # A boolean to determine whether or not to install the OpenShift.
+openshift_version: "4.15" # Specify the OpenShift version.
+openshift_release: "ocp" # Define OpenShift distribution, Valid values are ocp(OpenShift Container Platform) or okd(Origin Community Distribution).
+openshift_cluster: "{{ openshift_release }}-{{ customer }}-{{ environments }}-{{ project }}-{{ group }}-01"
+openshift_domain: "home.local" # Define the service environment.
+openshift_sshkey: "ssh-rsa AAAA...." # The SSH key to authenticate access to your cluster machines.
+
+# Network parameters #
+openshift_network:
+  cluster: "10.128.0.0/14" # IP address pools from which pod IP addresses are allocated.
+  machine: "192.168.0.0/24" # IP address blocks for machines.
+  hostprefix: "23" # The subnet prefix length to assign to each individual node.
+  service: ["172.30.0.0/16"] # The IP address block for services.
+  apivips: ["192.168.0.138"] # Virtual IP (VIP) addresses that you configured for control plane API access.
+  ingressvips: ["192.168.0.137"] # Virtual IP (VIP) addresses that you configured for cluster Ingress.
+
+# vSphere parameters #
+openshift_vsphere:
+  vcenter: "vsphere.local" # Specifies the fully-qualified hostname or IP address of the VMware vCenter server.
+  user: "admin" # The username associated with the vSphere user.
+  password: "password" # The password associated with the vSphere user.
+  cluster: "cn-north-1" # Defines the vSphere compute cluster.
+  datacenter: "cn-north" # Defines the datacenters where OpenShift Container Platform virtual machines (VMs) operate.
+  defaultdatastore: "ds-san-lun0" # The path to the vSphere datastore that holds virtual machine files, templates, and ISO images.
+  folder: "{{ customer }}/{{ environments }}/{{ project }}/{{ group }}" # The absolute path of an existing folder where the installation program creates the virtual machines.
+  resourcepool: "rp-{{ openshift_release }}-{{ customer }}-{{ environments }}-{{ project }}-{{ group }}-01" # The absolute path of an existing resource pool where the installation program creates the virtual machines.
+  networks: ["vlan-trunk-portrgoup"] # Lists any network in the vCenter instance that contains the virtual IP addresses and DNS records that you configured.
+
+# Container Registry parameters #
+#openshift_cr:
+#  pullsecret: '{"auths": ...}' # Get a pull secret from Red Hat OpenShift Cluster Manager to authenticate downloading container images.
+#  imagecontentsources: # Sources and repositories for the release-image content.
+#    - mirrors: ["swr.cn-east-3.myhuaweicloud.com:443/ocp4/openshift4"]
+#      source: "quay.io/openshift-release-dev/ocp-release"
+#  additionaltrustbundle:
+#    | # A PEM-encoded X.509 certificate bundle that is added to the nodes' trusted certificate store.
+#    -----BEGIN CERTIFICATE-----
+#    MIIDXzCCAkegAwIBAgILBAAAAAABIVhTCKIwDQYJKoZIhvcNAQELBQAwTDEgMB4G
+#    -----END CERTIFICATE-----
+
+# Service Mesh #
+customer: "it" # Define the customer name.
+environments: "prd" # Define the service environment.
+project: "shared" # Define the project name.
+group: "toolchain" # Define the group name.

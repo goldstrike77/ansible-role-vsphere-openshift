@@ -1,0 +1,51 @@
+additionalTrustBundlePolicy: Proxyonly
+apiVersion: v1
+baseDomain: {{ openshift_domain }}
+compute:
+- architecture: amd64
+  hyperthreading: Enabled
+  name: worker
+  platform: {}
+  replicas: 0
+controlPlane:
+  architecture: amd64
+  hyperthreading: Enabled
+  name: master
+  platform: {}
+  replicas: 3
+metadata:
+  creationTimestamp: null
+  name: {{ openshift_cluster }}
+networking:
+  clusterNetwork:
+  - cidr: {{ openshift_network.network | default("10.128.0.0/14") }}
+    hostPrefix: {{ openshift_network.hostprefix | default("23") }}
+  machineNetwork:
+  - cidr: {{ openshift_network.machine }}
+  networkType: OVNKubernetes
+  serviceNetwork: {{ openshift_network.service }}
+platform:
+  vsphere:
+    vCenter: {{ openshift_vsphere.vcenter }}
+    username: {{ openshift_vsphere.user }}@{{ openshift_vsphere.vcenter }}
+    password: {{ openshift_vsphere.password }}
+    datacenter: {{ openshift_vsphere.datacenter }}
+    cluster: {{ openshift_vsphere.cluster }}
+    defaultDatastore: /{{ openshift_vsphere.datacenter }}/datastore/{{ openshift_vsphere.defaultdatastore }}
+    folder: /{{ openshift_vsphere.datacenter }}/vm/{{ openshift_vsphere.folder | lower }}
+    resourcePool: /{{ openshift_vsphere.datacenter }}/host/{{ openshift_vsphere.cluster }}/{{ openshift_vsphere.resourcepool | lower }}
+    apiVIPs: {{ openshift_network.apivips }}
+    ingressVIPs: {{ openshift_network.ingressvips }}
+publish: External
+pullSecret: '{{ openshift_cr.pullsecret }}'
+fips: false
+sshKey: '{{ openshift_sshkey }}'
+additionalTrustBundle: |-
+{{ openshift_cr.additionaltrustbundle | indent( width=2, first=True ) }}
+{% if openshift_cr.imagecontentsources is defined and openshift_cr.imagecontentsources | length > 0 %}
+imageContentSources:
+{% for i in openshift_cr.imagecontentsources %}
+- mirrors: {{ i.mirrors }}
+  source: {{ i.source }}
+{% endfor %}
+{% endif %}
