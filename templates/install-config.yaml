@@ -23,7 +23,7 @@ networking:
   machineNetwork:
   - cidr: {{ openshift_network.machine }}
   networkType: OVNKubernetes
-  serviceNetwork: {{ openshift_network.service }}
+  serviceNetwork: [{{ openshift_network.service }}]
 platform:
   vsphere:
     vCenter: {{ openshift_vsphere.vcenter }}
@@ -34,8 +34,8 @@ platform:
     defaultDatastore: /{{ openshift_vsphere.datacenter }}/datastore/{{ openshift_vsphere.defaultdatastore }}
     folder: /{{ openshift_vsphere.datacenter }}/vm/{{ openshift_vsphere.folder | lower }}
     resourcePool: /{{ openshift_vsphere.datacenter }}/host/{{ openshift_vsphere.cluster }}/{{ openshift_vsphere.resourcepool | lower }}
-    apiVIPs: {{ openshift_network.apivips }}
-    ingressVIPs: {{ openshift_network.ingressvips }}
+    apiVIPs: [{{ openshift_network.apivips }}]
+    ingressVIPs: [{{ openshift_network.ingressvips }}]
 publish: External
 pullSecret: '{{ openshift_cr.pullsecret }}'
 fips: false

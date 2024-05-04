@@ -1,0 +1,14 @@
+---
+- name: Upload the bootstrap Ignition config files.
+  amazon.aws.s3_object:
+    access_key: "{{ openshift_ignition_bucket.access_key }}"
+    secret_key: "{{ openshift_ignition_bucket.secret_key }}"
+    bucket: "{{ openshift_ignition_bucket.bucket }}"
+    object: "{{ openshift_cluster }}/bootstrap.ign"
+    src: "ignition/bootstrap.ign"
+    mode: "put"
+    endpoint_url: "{{ openshift_ignition_bucket.endpoint_url }}"
+    permission: "public-read"
+    validate_certs: false
+    encrypt: "{{ openshift_ignition_bucket.encrypt | bool }}"
+  delegate_to: "localhost"

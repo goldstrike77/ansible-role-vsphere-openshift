@@ -12,9 +12,9 @@ openshift_network:
   cluster: "10.128.0.0/14" # IP address pools from which pod IP addresses are allocated.
   machine: "192.168.0.0/24" # IP address blocks for machines.
   hostprefix: "23" # The subnet prefix length to assign to each individual node.
-  service: ["172.30.0.0/16"] # The IP address block for services.
-  apivips: ["192.168.0.138"] # Virtual IP (VIP) addresses that you configured for control plane API access.
-  ingressvips: ["192.168.0.137"] # Virtual IP (VIP) addresses that you configured for cluster Ingress.
+  service: "172.30.0.0/16" # The IP address block for services.
+  apivips: "192.168.0.138" # Virtual IP (VIP) addresses that you configured for control plane API access.
+  ingressvips: "192.168.0.137" # Virtual IP (VIP) addresses that you configured for cluster Ingress.
 
 # vSphere parameters #
 openshift_vsphere:
@@ -39,6 +39,21 @@ openshift_vsphere:
 #    -----BEGIN CERTIFICATE-----
 #    MIIDXzCCAkegAwIBAgILBAAAAAABIVhTCKIwDQYJKoZIhvcNAQELBQAwTDEgMB4G
 #    -----END CERTIFICATE-----
+
+# HTTP parameters #
+openshift_ignition_bucket:
+  type: "s3"
+  access_key: 'admin'
+  secret_key: 'password'
+  bucket: 'ignition'
+  endpoint_url: "http://obs.home.local:9000"
+  encrypt: false
+
+# DNS parameters #
+openshift_dns:
+  type: "win"
+  forward_zone: '{{ openshift_domain }}'
+  reverse_zone: "192.in-addr.arpa"
 
 # Node parameters #
 openshift_node:

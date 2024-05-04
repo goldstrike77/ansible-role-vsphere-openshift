@@ -62,3 +62,9 @@
   shell:
     cmd: openshift-install create ignition-configs --dir ignition
   delegate_to: "localhost"
+
+- name: Create secondary Ignition config file for bootstrap node.
+  template:
+    src: "merge-bootstrap.ign"
+    dest: "ignition/merge-bootstrap.ign"
+  delegate_to: "localhost"

@@ -1,0 +1,23 @@
+---
+- name: Create Kubernetes API A records.
+  community.windows.win_dns_record:
+    name: "{{ item }}.{{ openshift_cluster }}"
+    type: "A"
+    value: "{{ openshift_network.apivips }}"
+    zone: "{{ openshift_dns.forward_zone }}"
+  loop:
+    - "api"
+    - "api-int"
+    - "*.apps"
+
+- name: Create Kubernetes API PTR records.
+  community.windows.win_dns_record:
+    name: '{{ openshift_network.apivips.split(".")[1:4] | reverse | join(".") }}'
+    type: "PTR"
+    value:
+      [
+        "api.{{ openshift_cluster }}.{{ openshift_domain }}",
+        "api-int.{{ openshift_cluster }}.{{ openshift_domain }}",
+        "*.apps.{{ openshift_cluster }}.{{ openshift_domain }}",
+      ]
+    zone: "{{ openshift_dns.reverse_zone }}"
