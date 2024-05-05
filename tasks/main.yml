@@ -10,9 +10,13 @@
     - name: Include tasks for setting up installer manifests.
       ansible.builtin.include_tasks: "ignition.yml"
     - name: Include tasks for installation program created to HTTP server.
-      ansible.builtin.include_tasks: "bucket/{{ openshift_ignition_bucket.type | default('s3') }}.yml"
+      ansible.builtin.include_tasks: "bucket/{{ openshift_ignition_bucket.type }}.yml"
+      when: openshift_ignition_bucket is defined
+  delegate_to: "localhost"
   when: not openshift_ignition_result.stat.exists | bool
 
 - name: Operation for DNS configuration.
-  ansible.builtin.include_tasks: "dns/{{ openshift_dns.type | default('win') }}.yml"
-  when: group_names[0] == 'dns'
+  ansible.builtin.include_tasks: "dns/{{ openshift_dns.type }}.yml"
+  when:
+    - openshift_dns is defined
+    - group_names[0] == 'dns'

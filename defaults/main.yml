@@ -41,23 +41,35 @@ openshift_vsphere:
 #    -----END CERTIFICATE-----
 
 # HTTP parameters #
-openshift_ignition_bucket:
-  type: "s3"
-  access_key: 'admin'
-  secret_key: 'password'
-  bucket: 'ignition'
-  endpoint_url: "http://obs.home.local:9000"
-  encrypt: false
+#openshift_ignition_bucket:
+#  type: "s3"
+#  access_key: 'admin'
+#  secret_key: 'password'
+#  bucket: 'ignition'
+#  endpoint_url: "http://obs.home.local:9000"
+#  encrypt: false
 
 # DNS parameters #
-openshift_dns:
-  type: "win"
-  forward_zone: '{{ openshift_domain }}'
-  reverse_zone: "192.in-addr.arpa"
+#openshift_dns:
+#  type: "win"
+#  forward_zone: '{{ openshift_domain }}'
+#  reverse_zone: "192.in-addr.arpa"
 
 # Node parameters #
-openshift_node:
-  ntp: ['ntp1.aliyun.com','ntp2.aliyun.com','ntp3.aliyun.com']# specify a list of NTP servers.
+#openshift_node:
+#  nic: "ens192"
+#  gateway: "192.168.0.1"
+#  netmask: "255.255.255.0"
+#  dns: "192.168.0.251"
+#  ntp: ["ntp1.aliyun.com", "ntp2.aliyun.com", "ntp3.aliyun.com"]
+#  template: "template-RHCOS415"
+#  specs:
+#    - { name: "s-bootstrap-01", ip: "192.168.0.150", cpucount: "4", memory: "8", role: "bootstrap" }
+#    - { name: "s-master-01", ip: "192.168.0.151", cpucount: "4", memory: "8", disk: "63", role: "master" }
+#    - { name: "s-master-02", ip: "192.168.0.152", cpucount: "4", memory: "8", disk: "63", role: "master" }
+#    - { name: "s-master-03", ip: "192.168.0.153", cpucount: "4", memory: "8", disk: "63", role: "master" }
+#    - { name: "s-worker-01", ip: "192.168.0.154", cpucount: "10", memory: "32", disk: "127", role: "worker" }
+#    - { name: "s-worker-02", ip: "192.168.0.155", cpucount: "10", memory: "32", disk: "127", role: "worker" }
 
 # Service Mesh #
 customer: "it" # Define the customer name.

@@ -21,3 +21,21 @@
         "*.apps.{{ openshift_cluster }}.{{ openshift_domain }}",
       ]
     zone: "{{ openshift_dns.reverse_zone }}"
+
+- name: Create compute machines A records.
+  community.windows.win_dns_record:
+    name: "{{ item.name }}.{{ openshift_cluster }}"
+    type: "A"
+    value: "{{ item.ip }}"
+    zone: "{{ openshift_dns.forward_zone }}"
+  loop: "{{ openshift_node.specs }}"
+  when: openshift_node.specs is defined
+
+- name: Create compute machines PTR records.
+  community.windows.win_dns_record:
+    name: '{{ item.ip.split(".")[1:4] | reverse | join(".") }}'
+    type: "PTR"
+    value: "{{ item.name }}.{{ openshift_cluster }}.{{ openshift_domain }}"
+    zone: "{{ openshift_dns.reverse_zone }}"
+  loop: "{{ openshift_node.specs }}"
+  when: openshift_node.specs is defined

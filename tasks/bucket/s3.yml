@@ -11,4 +11,3 @@
     permission: "public-read"
     validate_certs: false
     encrypt: "{{ openshift_ignition_bucket.encrypt | bool }}"
-  delegate_to: "localhost"

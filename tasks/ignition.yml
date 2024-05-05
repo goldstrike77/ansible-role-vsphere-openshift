@@ -4,13 +4,11 @@
     dest: "ignition"
     state: "directory"
     mode: "0755"
-  delegate_to: "localhost"
 
 - name: Setting up install-config template for installer.
   template:
     src: "install-config.yaml"
     dest: "ignition/{{ item }}"
-  delegate_to: "localhost"
   loop:
     - "install-config.yaml"
     - "install-config.yaml.orig"
@@ -18,13 +16,11 @@
 - name: Invoking the installer to get manifests.
   shell:
     cmd: openshift-install create manifests --dir ignition
-  delegate_to: "localhost"
 
 - name: Remove the manifest files that define the MachineSets because create and manage these resources yourself.
   file:
     path: "{{ item }}"
     state: "absent"
-  delegate_to: "localhost"
   loop:
     - "ignition/99_openshift-cluster-api_master-machines-0.yaml"
     - "ignition/99_openshift-cluster-api_master-machines-1.yaml"
@@ -36,7 +32,6 @@
   template:
     src: "chrony.bu"
     dest: "ignition/openshift/99-{{ item }}-chrony.bu"
-  delegate_to: "localhost"
   loop:
     - "master"
     - "worker"
@@ -44,7 +39,6 @@
 - name: Generate a chrony time service object file.
   shell:
     cmd: butane ignition/openshift/99-{{ item }}-chrony.bu -o ignition/openshift/99-{{ item }}-chrony.yaml
-  delegate_to: "localhost"
   loop:
     - "master"
     - "worker"
@@ -53,7 +47,6 @@
   file:
     path: "ignition/openshift/99-{{ item }}-chrony.bu"
     state: "absent"
-  delegate_to: "localhost"
   loop:
     - "master"
     - "worker"
@@ -61,10 +54,8 @@
 - name: Invoking the installer to get manifests.
   shell:
     cmd: openshift-install create ignition-configs --dir ignition
-  delegate_to: "localhost"
 
 - name: Create secondary Ignition config file for bootstrap node.
   template:
     src: "merge-bootstrap.ign"
     dest: "ignition/merge-bootstrap.ign"
-  delegate_to: "localhost"
