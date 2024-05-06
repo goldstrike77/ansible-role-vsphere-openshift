@@ -1,0 +1,20 @@
+variant: openshift
+version: '{{openshift_version }}.0'
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: {{ item }}
+  name: 98-{{ item }}-partition
+storage:
+  disks:
+  - device: /dev/sdb
+    partitions:
+    - label: var
+      start_mib: <partition_start_offset> 2
+      size_mib: <partition_size> 3
+      number: 5
+  filesystems:
+    - device: /dev/disk/by-partlabel/var
+      path: /var
+      format: xfs
+      mount_options: [defaults, prjquota]
+      with_mount_unit: true

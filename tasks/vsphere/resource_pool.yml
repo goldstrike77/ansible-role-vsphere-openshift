@@ -1,0 +1,22 @@
+---
+- name: Add resource pool to vCenter.
+  community.vmware.vmware_resource_pool:
+    hostname: "{{ openshift_vsphere.vcenter }}"
+    username: "{{ openshift_vsphere.user }}@{{ openshift_vsphere.vcenter }}"
+    password: "{{ openshift_vsphere.password }}"
+    datacenter: "{{ openshift_vsphere.datacenter }}"
+    cluster: "{{ openshift_vsphere.cluster }}"
+    resource_pool: "{{ openshift_vsphere.resourcepool.name }}"
+    mem_shares: "{{ openshift_vsphere.resourcepool.mem_shares | default('normal') }}"
+    mem_limit: "{{ openshift_vsphere.resourcepool.mem_limit | default(-1) }}"
+    mem_reservation: "{{ openshift_vsphere.resourcepool.mem_reservation | default(0) }}"
+    mem_expandable_reservations: "{{ openshift_vsphere.resourcepool.mem_expandable_reservations | default(true) | bool }}"
+    cpu_shares: "{{ openshift_vsphere.resourcepool.cpu_shares | default('normal') }}"
+    cpu_limit: "{{ openshift_vsphere.resourcepool.cpu_limit | default(-1) }}"
+    cpu_reservation: "{{ openshift_vsphere.resourcepool.cpu_reservation | default(0) }}"
+    cpu_expandable_reservations: "{{ openshift_vsphere.resourcepool.cpu_expandable_reservations | default(true) | bool }}"
+    validate_certs: false
+    state: "present"
+  delegate_to: "localhost"
+  changed_when: false
+  failed_when: false

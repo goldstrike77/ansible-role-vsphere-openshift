@@ -33,7 +33,7 @@ platform:
     cluster: {{ openshift_vsphere.cluster }}
     defaultDatastore: /{{ openshift_vsphere.datacenter }}/datastore/{{ openshift_vsphere.defaultdatastore }}
     folder: /{{ openshift_vsphere.datacenter }}/vm/{{ openshift_vsphere.folder | lower }}
-    resourcePool: /{{ openshift_vsphere.datacenter }}/host/{{ openshift_vsphere.cluster }}/{{ openshift_vsphere.resourcepool | lower }}
+    resourcePool: /{{ openshift_vsphere.datacenter }}/host/{{ openshift_vsphere.cluster }}/{{ openshift_vsphere.resourcepool.name | lower }}
     apiVIPs: [{{ openshift_network.apivips }}]
     ingressVIPs: [{{ openshift_network.ingressvips }}]
 publish: External

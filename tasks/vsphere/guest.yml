@@ -1,0 +1,62 @@
+---
+- name: Gather guest VM facts from VMware vCenter.
+  community.vmware.vmware_guest_info:
+    name: "{{ item.name }}"
+    folder: "{{ openshift_vsphere.datacenter }}/vm/{{ openshift_vsphere.folder }}"
+    hostname: "{{ openshift_vsphere.vcenter }}"
+    username: "{{ openshift_vsphere.user }}@{{ openshift_vsphere.vcenter }}"
+    password: "{{ openshift_vsphere.password }}"
+    datacenter: "{{ openshift_vsphere.datacenter }}"
+    validate_certs: false
+  delegate_to: localhost
+  changed_when: false
+  failed_when: false
+  register: openshift_vsphere_guest_facts
+  no_log: false
+
+- name: Adding compute machines {{ item.name}} in vSphere.
+  community.vmware.vmware_guest:
+    hostname: "{{ openshift_vsphere.vcenter }}"
+    username: "{{ openshift_vsphere.user }}@{{ openshift_vsphere.vcenter }}"
+    password: "{{ openshift_vsphere.password }}"
+    datacenter: "{{ openshift_vsphere.datacenter }}"
+    cluster: "{{ openshift_vsphere.cluster }}"
+    datastore: "{{ openshift_node.datastore }}"
+    resource_pool: "{% if openshift_vsphere_rp_info.resource_pool_info | json_query('[*].name') | length > 1 %}{{ openshift_vsphere.resourcepool.name }}{% endif %}"
+    folder: "{{ openshift_vsphere.folder }}"
+    name: "{{ item.name }}"
+    template: "{{ openshift_node.template }}"
+    state: "poweredoff"
+    hardware:
+      memory_mb: "{{ item.memory | int * 1024 }}"
+      num_cpus: "{{ item.cpucount | int }}"
+    advanced_settings:
+      - { key: "guestinfo.afterburn.initrd.network-kargs", value: 'ip={{ item.ip }}::{{ openshift_node.gateway }}:{{ openshift_node.netmask }}:{{ item.name }}::none:{{ openshift_node.dns | list | join(":") }}' }
+      - { key: "disk.EnableUUID", value: "TRUE" }
+      - { key: "stealclock.enable", value: "TRUE" }
+      - { key: "guestinfo.ignition.config.data", value: "{{ lookup('file', 'ignition/' + item.role + '.ign') | b64encode }}" }
+      - { key: "guestinfo.ignition.config.data.encoding", value: "base64" }
+    wait_for_ip_address: "no"
+    validate_certs: false
+  delegate_to: localhost
+  when: openshift_vsphere_guest_facts.instance is not defined
+
+- name: Manage disks related to virtual machine.
+  community.vmware.vmware_guest_disk:
+    hostname: "{{ openshift_vsphere.vcenter }}"
+    username: "{{ openshift_vsphere.user }}@{{ openshift_vsphere.vcenter }}"
+    password: "{{ openshift_vsphere.password }}"
+    datacenter: "{{ openshift_vsphere.datacenter }}"
+    folder: "{{ openshift_vsphere.folder }}"
+    name: "{{ item.name }}"
+    disk:
+      - size_gb: "{{ item.disk }}"
+        type: "{{ openshift_node.disktype | default('thin') }}"
+        datastore: "{{ openshift_node.datastore }}"
+        controller_number: "{{ openshift_vsphere_disk_info.guest_disk_info | json_query('*.controller_bus_number') | int }}"
+        controller_type: "{{ openshift_vsphere_disk_info.guest_disk_info | json_query('*.controller_type') | join }}"
+        state: "present"
+        unit_number: 2
+    validate_certs: false
+  delegate_to: localhost
+  when: item.disk is defined

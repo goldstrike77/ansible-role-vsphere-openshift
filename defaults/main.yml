@@ -13,27 +13,38 @@ openshift_network:
   machine: "192.168.0.0/24" # IP address blocks for machines.
   hostprefix: "23" # The subnet prefix length to assign to each individual node.
   service: "172.30.0.0/16" # The IP address block for services.
-  apivips: "192.168.0.138" # Virtual IP (VIP) addresses that you configured for control plane API access.
-  ingressvips: "192.168.0.137" # Virtual IP (VIP) addresses that you configured for cluster Ingress.
+  apivips: "192.168.0.169" # Virtual IP (VIP) addresses that you configured for control plane API access.
+  ingressvips: "192.168.0.168" # Virtual IP (VIP) addresses that you configured for cluster Ingress.
 
 # vSphere parameters #
 openshift_vsphere:
   vcenter: "vsphere.local" # Specifies the fully-qualified hostname or IP address of the VMware vCenter server.
-  user: "admin" # The username associated with the vSphere user.
+  user: "administrator" # The username associated with the vSphere user.
   password: "password" # The password associated with the vSphere user.
   cluster: "cn-north-1" # Defines the vSphere compute cluster.
   datacenter: "cn-north" # Defines the datacenters where OpenShift Container Platform virtual machines (VMs) operate.
   defaultdatastore: "ds-san-lun0" # The path to the vSphere datastore that holds virtual machine files, templates, and ISO images.
   folder: "{{ customer }}/{{ environments }}/{{ project }}/{{ group }}" # The absolute path of an existing folder where the installation program creates the virtual machines.
-  resourcepool: "rp-{{ openshift_release }}-{{ customer }}-{{ environments }}-{{ project }}-{{ group }}-01" # The absolute path of an existing resource pool where the installation program creates the virtual machines.
+  resourcepool:  # The absolute path of an existing resource pool where the installation program creates the virtual machines.
+    name: "rp-{{ customer }}-{{ environments }}-{{ project }}-{{ group }}"
+    mem_shares: "normal"
+    mem_limit: -1
+    mem_reservation: 0
+    mem_expandable_reservations: true
+    cpu_shares: "normal"
+    cpu_limit: -1
+    cpu_reservation: 0
+    cpu_expandable_reservations: true
   networks: ["vlan-trunk-portrgoup"] # Lists any network in the vCenter instance that contains the virtual IP addresses and DNS records that you configured.
 
 # Container Registry parameters #
 #openshift_cr:
-#  pullsecret: '{"auths": ...}' # Get a pull secret from Red Hat OpenShift Cluster Manager to authenticate downloading container images.
-#  imagecontentsources: # Sources and repositories for the release-image content.
-#    - mirrors: ["swr.cn-east-3.myhuaweicloud.com:443/ocp4/openshift4"]
+#  pullsecret: '{"auths":{"swr.cn-east-3.myhuaweicloud.com":{"auth":"Y24tZWFzdC0zQFJPTU5TQ0NHWTdOVkg0NUZJMktVOjdmODVjNTVkOTRkZWEzOTVhZTkwZjY4NjBiMTA1NWNhZTk4MzE0NTVjMzhhNDI2ZTNhZjM2MjZmMzE4NDViZDg=","email":"you@example.com"}}}'
+#  imagecontentsources:
+#    - mirrors: ["swr.cn-east-3.myhuaweicloud.com/ocp4/openshift4"]
 #      source: "quay.io/openshift-release-dev/ocp-release"
+#    - mirrors: ["swr.cn-east-3.myhuaweicloud.com/ocp4/openshift4"]
+#      source: "quay.io/openshift-release-dev/ocp-v4.0-art-dev"
 #  additionaltrustbundle:
 #    | # A PEM-encoded X.509 certificate bundle that is added to the nodes' trusted certificate store.
 #    -----BEGIN CERTIFICATE-----
@@ -57,19 +68,20 @@ openshift_vsphere:
 
 # Node parameters #
 #openshift_node:
-#  nic: "ens192"
 #  gateway: "192.168.0.1"
 #  netmask: "255.255.255.0"
-#  dns: "192.168.0.251"
+#  dns: ["192.168.0.251","192.168.0.252"]
 #  ntp: ["ntp1.aliyun.com", "ntp2.aliyun.com", "ntp3.aliyun.com"]
+#  datastore: "ds-san-lun1"
+#  disktype: "thin"
 #  template: "template-RHCOS415"
 #  specs:
-#    - { name: "s-bootstrap-01", ip: "192.168.0.150", cpucount: "4", memory: "8", role: "bootstrap" }
-#    - { name: "s-master-01", ip: "192.168.0.151", cpucount: "4", memory: "8", disk: "63", role: "master" }
-#    - { name: "s-master-02", ip: "192.168.0.152", cpucount: "4", memory: "8", disk: "63", role: "master" }
-#    - { name: "s-master-03", ip: "192.168.0.153", cpucount: "4", memory: "8", disk: "63", role: "master" }
-#    - { name: "s-worker-01", ip: "192.168.0.154", cpucount: "10", memory: "32", disk: "127", role: "worker" }
-#    - { name: "s-worker-02", ip: "192.168.0.155", cpucount: "10", memory: "32", disk: "127", role: "worker" }
+#    - { name: "s-bootstrap-01", ip: "192.168.0.150", cpucount: "4", memory: "8", role: "merge-bootstrap" }
+#    - { name: "s-master-01", ip: "192.168.0.151", cpucount: "4", memory: "8", disk: 63, role: "master" }
+#    - { name: "s-master-02", ip: "192.168.0.152", cpucount: "4", memory: "8", disk: 63, role: "master" }
+#    - { name: "s-master-03", ip: "192.168.0.153", cpucount: "4", memory: "8", disk: 63, role: "master" }
+#    - { name: "s-worker-01", ip: "192.168.0.154", cpucount: "10", memory: "32", disk: 127, role: "worker" }
+#    - { name: "s-worker-02", ip: "192.168.0.155", cpucount: "10", memory: "32", disk: 127, role: "worker" }
 
 # Service Mesh #
 customer: "it" # Define the customer name.

@@ -1,0 +1,51 @@
+---
+- name: Create customer folder on given datacenter.
+  community.vmware.vcenter_folder:
+    hostname: "{{ openshift_vsphere.vcenter }}"
+    username: "{{ openshift_vsphere.user }}@{{ openshift_vsphere.vcenter }}"
+    password: "{{ openshift_vsphere.password }}"
+    datacenter: "{{ openshift_vsphere.datacenter }}"
+    folder_name: "{{ customer | lower }}"
+    folder_type: "vm"
+    validate_certs: false
+    state: "present"
+  delegate_to: "localhost"
+
+- name: Create environment folder on given datacenter.
+  community.vmware.vcenter_folder:
+    hostname: "{{ openshift_vsphere.vcenter }}"
+    username: "{{ openshift_vsphere.user }}@{{ openshift_vsphere.vcenter }}"
+    password: "{{ openshift_vsphere.password }}"
+    datacenter: "{{ openshift_vsphere.datacenter }}"
+    parent_folder: "{{ customer | lower }}"
+    folder_name: "{{ environments | lower }}"
+    folder_type: "vm"
+    validate_certs: false
+    state: "present"
+  delegate_to: "localhost"
+
+- name: Create project folder on given datacenter.
+  community.vmware.vcenter_folder:
+    hostname: "{{ openshift_vsphere.vcenter }}"
+    username: "{{ openshift_vsphere.user }}@{{ openshift_vsphere.vcenter }}"
+    password: "{{ openshift_vsphere.password }}"
+    datacenter: "{{ openshift_vsphere.datacenter }}"
+    parent_folder: "{{ customer | lower }}/{{ environments | lower }}"
+    folder_name: "{{ project | lower }}"
+    folder_type: "vm"
+    validate_certs: false
+    state: "present"
+  delegate_to: "localhost"
+
+- name: Create group folder on given datacenter.
+  community.vmware.vcenter_folder:
+    hostname: "{{ openshift_vsphere.vcenter }}"
+    username: "{{ openshift_vsphere.user }}@{{ openshift_vsphere.vcenter }}"
+    password: "{{ openshift_vsphere.password }}"
+    datacenter: "{{ openshift_vsphere.datacenter }}"
+    parent_folder: "{{ customer | lower }}/{{ environments | lower }}/{{ project | lower }}"
+    folder_name: "{{ group | lower }}"
+    folder_type: "vm"
+    validate_certs: false
+    state: "present"
+  delegate_to: "localhost"
