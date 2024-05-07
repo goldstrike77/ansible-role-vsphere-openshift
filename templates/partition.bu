@@ -2,15 +2,15 @@ variant: openshift
 version: '{{openshift_version }}.0'
 metadata:
   labels:
-    machineconfiguration.openshift.io/role: {{ item }}
-  name: 98-{{ item }}-partition
+    machineconfiguration.openshift.io/role: {{ item.role }}
+  name: 98-{{ item.role }}-partition
 storage:
   disks:
-  - device: /dev/sdb
+  - device: /dev/sda
     partitions:
     - label: var
-      start_mib: <partition_start_offset> 2
-      size_mib: <partition_size> 3
+      start_mib: 25000
+      size_mib: {{ openshift_node.specs[item.role].disk | int * 1024 }}
       number: 5
   filesystems:
     - device: /dev/disk/by-partlabel/var

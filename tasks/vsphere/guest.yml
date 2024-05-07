@@ -26,10 +26,14 @@
     folder: "{{ openshift_vsphere.folder }}"
     name: "{{ item.name }}"
     template: "{{ openshift_node.template }}"
-    state: "poweredoff"
+    state: '{% if openshift_node.specs[item.role] == "merge-bootstrap" %}poweredon{% else %}poweredoff{% endif %}'
+    disk:
+    - size_gb: '{{ openshift_node.specs[item.role].disk | int }}'
+      type: "{{ openshift_node.disktype | default('thin') }}"
+      datastore: "{{ openshift_node.datastore }}"
     hardware:
-      memory_mb: "{{ item.memory | int * 1024 }}"
-      num_cpus: "{{ item.cpucount | int }}"
+      memory_mb: "{{ openshift_node.specs[item.role].memory | int * 1024 }}"
+      num_cpus: "{{ openshift_node.specs[item.role].cpucount | int }}"
     advanced_settings:
       - { key: "guestinfo.afterburn.initrd.network-kargs", value: 'ip={{ item.ip }}::{{ openshift_node.gateway }}:{{ openshift_node.netmask }}:{{ item.name }}::none:{{ openshift_node.dns | list | join(":") }}' }
       - { key: "disk.EnableUUID", value: "TRUE" }
@@ -41,22 +45,22 @@
   delegate_to: localhost
   when: openshift_vsphere_guest_facts.instance is not defined
 
-- name: Manage disks related to virtual machine.
-  community.vmware.vmware_guest_disk:
-    hostname: "{{ openshift_vsphere.vcenter }}"
-    username: "{{ openshift_vsphere.user }}@{{ openshift_vsphere.vcenter }}"
-    password: "{{ openshift_vsphere.password }}"
-    datacenter: "{{ openshift_vsphere.datacenter }}"
-    folder: "{{ openshift_vsphere.folder }}"
-    name: "{{ item.name }}"
-    disk:
-      - size_gb: "{{ item.disk }}"
-        type: "{{ openshift_node.disktype | default('thin') }}"
-        datastore: "{{ openshift_node.datastore }}"
-        controller_number: "{{ openshift_vsphere_disk_info.guest_disk_info | json_query('*.controller_bus_number') | int }}"
-        controller_type: "{{ openshift_vsphere_disk_info.guest_disk_info | json_query('*.controller_type') | join }}"
-        state: "present"
-        unit_number: 2
-    validate_certs: false
-  delegate_to: localhost
-  when: item.disk is defined
+#- name: Manage disks related to virtual machine.
+#  community.vmware.vmware_guest_disk:
+#    hostname: "{{ openshift_vsphere.vcenter }}"
+#    username: "{{ openshift_vsphere.user }}@{{ openshift_vsphere.vcenter }}"
+#    password: "{{ openshift_vsphere.password }}"
+#    datacenter: "{{ openshift_vsphere.datacenter }}"
+#    folder: "{{ openshift_vsphere.folder }}"
+#    name: "{{ item.name }}"
+#    disk:
+#      - size_gb: "{{ openshift_node.specs[item.role].disk | int }}"
+#        type: "{{ openshift_node.disktype | default('thin') }}"
+#        datastore: "{{ openshift_node.datastore }}"
+#        controller_number: "{{ openshift_vsphere_disk_info.guest_disk_info | json_query('*.controller_bus_number') | int }}"
+#        controller_type: "{{ openshift_vsphere_disk_info.guest_disk_info | json_query('*.controller_type') | join }}"
+#        state: "present"
+#        unit_number: 2
+#    validate_certs: false
+#  delegate_to: localhost
+#  when: item.role in ["master","worker"]
