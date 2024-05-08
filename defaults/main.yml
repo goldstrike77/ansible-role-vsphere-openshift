@@ -70,18 +70,30 @@ openshift_vsphere:
 #openshift_node:
 #  gateway: "192.168.0.1"
 #  netmask: "255.255.255.0"
-#  dns: ["192.168.0.251","192.168.0.252"]
+#  dns: ["192.168.0.251"]
 #  ntp: ["ntp1.aliyun.com", "ntp2.aliyun.com", "ntp3.aliyun.com"]
 #  datastore: "ds-san-lun1"
 #  disktype: "thin"
 #  template: "template-RHCOS415"
 #  specs:
-#    - { name: "s-bootstrap-01", ip: "192.168.0.150", cpucount: "4", memory: "8", role: "merge-bootstrap" }
-#    - { name: "s-master-01", ip: "192.168.0.151", cpucount: "4", memory: "8", disk: 63, role: "master" }
-#    - { name: "s-master-02", ip: "192.168.0.152", cpucount: "4", memory: "8", disk: 63, role: "master" }
-#    - { name: "s-master-03", ip: "192.168.0.153", cpucount: "4", memory: "8", disk: 63, role: "master" }
-#    - { name: "s-worker-01", ip: "192.168.0.154", cpucount: "10", memory: "32", disk: 127, role: "worker" }
-#    - { name: "s-worker-02", ip: "192.168.0.155", cpucount: "10", memory: "32", disk: 127, role: "worker" }
+#    bootstrap:
+#      cpucount: 4
+#      memory: 8
+#    master:
+#      cpucount: 4
+#      memory: 8
+#      disk: 63
+#    worker:
+#      cpucount: 10
+#      memory: 32
+#      disk: 127
+#  hosts:
+#    - { name: "s-bootstrap-01", ip: "192.168.0.160", role: "bootstrap" }
+#    - { name: "s-master-01", ip: "192.168.0.161", role: "master" }
+#    - { name: "s-master-02", ip: "192.168.0.162", role: "master" }
+#    - { name: "s-master-03", ip: "192.168.0.163", role: "master" }
+#    - { name: "s-worker-01", ip: "192.168.0.164", role: "worker" }
+#    - { name: "s-worker-02", ip: "192.168.0.165", role: "worker" }
 
 # Service Mesh #
 customer: "it" # Define the customer name.

@@ -1,26 +1,24 @@
 ---
-- name: Create Kubernetes API A records.
+- name: Create Kubernetes API & Routes A records.
   community.windows.win_dns_record:
-    name: "{{ item }}.{{ openshift_cluster }}"
+    name: "{{ item.name }}.{{ openshift_cluster }}"
     type: "A"
-    value: "{{ openshift_network.apivips }}"
+    value: "{{ openshift_network[item.ip] }}"
     zone: "{{ openshift_dns.forward_zone }}"
   loop:
-    - "api"
-    - "api-int"
-    - "*.apps"
+    - { name: "api", ip: "apivips" }
+    - { name: "api-int", ip: "apivips" }
+    - { name: "*.apps", ip: "ingressvips" }
 
-- name: Create Kubernetes API PTR records.
+- name: Create Kubernetes API & Routes PTR records.
   community.windows.win_dns_record:
-    name: '{{ openshift_network.apivips.split(".")[1:4] | reverse | join(".") }}'
+    name: '{{ openshift_network[item.ip].split(".")[1:4] | reverse | join(".") }}'
     type: "PTR"
-    value:
-      [
-        "api.{{ openshift_cluster }}.{{ openshift_domain }}",
-        "api-int.{{ openshift_cluster }}.{{ openshift_domain }}",
-        "*.apps.{{ openshift_cluster }}.{{ openshift_domain }}",
-      ]
+    value: "{{ item.value }}"
     zone: "{{ openshift_dns.reverse_zone }}"
+  loop:
+    - { value: ["api.{{ openshift_cluster }}.{{ openshift_domain }}","api-int.{{ openshift_cluster }}.{{ openshift_domain }}"], ip: "apivips" }
+    - { value: ["*.apps.{{ openshift_cluster }}.{{ openshift_domain }}"], ip: "ingressvips" }
 
 - name: Create compute machines A records.
   community.windows.win_dns_record:

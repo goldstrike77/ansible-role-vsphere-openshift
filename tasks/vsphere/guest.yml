@@ -26,9 +26,9 @@
     folder: "{{ openshift_vsphere.folder }}"
     name: "{{ item.name }}"
     template: "{{ openshift_node.template }}"
-    state: '{% if openshift_node.specs[item.role] == "merge-bootstrap" %}poweredon{% else %}poweredoff{% endif %}'
+    state: 'poweredon'
     disk:
-    - size_gb: '{{ openshift_node.specs[item.role].disk | int }}'
+    - size_gb: '{% if openshift_node.specs[item.role].disk is defined %}{{ openshift_node.specs[item.role].disk | int}}{% else %}25{% endif %}'
       type: "{{ openshift_node.disktype | default('thin') }}"
       datastore: "{{ openshift_node.datastore }}"
     hardware:
@@ -38,29 +38,9 @@
       - { key: "guestinfo.afterburn.initrd.network-kargs", value: 'ip={{ item.ip }}::{{ openshift_node.gateway }}:{{ openshift_node.netmask }}:{{ item.name }}::none:{{ openshift_node.dns | list | join(":") }}' }
       - { key: "disk.EnableUUID", value: "TRUE" }
       - { key: "stealclock.enable", value: "TRUE" }
-      - { key: "guestinfo.ignition.config.data", value: "{{ lookup('file', 'ignition/' + item.role + '.ign') | b64encode }}" }
+      - { key: "guestinfo.ignition.config.data", value: '{% if item.role == "bootstrap" %}{{ lookup("file","ignition/merge-bootstrap.ign") | b64encode }}{% elif item.role == "master" %}{{ lookup("file","ignition/master.ign") | b64encode }}{% else %}{{ lookup("file","ignition/worker.ign") | b64encode }}{% endif %}' }
       - { key: "guestinfo.ignition.config.data.encoding", value: "base64" }
     wait_for_ip_address: "no"
     validate_certs: false
   delegate_to: localhost
   when: openshift_vsphere_guest_facts.instance is not defined
-
-#- name: Manage disks related to virtual machine.
-#  community.vmware.vmware_guest_disk:
-#    hostname: "{{ openshift_vsphere.vcenter }}"
-#    username: "{{ openshift_vsphere.user }}@{{ openshift_vsphere.vcenter }}"
-#    password: "{{ openshift_vsphere.password }}"
-#    datacenter: "{{ openshift_vsphere.datacenter }}"
-#    folder: "{{ openshift_vsphere.folder }}"
-#    name: "{{ item.name }}"
-#    disk:
-#      - size_gb: "{{ openshift_node.specs[item.role].disk | int }}"
-#        type: "{{ openshift_node.disktype | default('thin') }}"
-#        datastore: "{{ openshift_node.datastore }}"
-#        controller_number: "{{ openshift_vsphere_disk_info.guest_disk_info | json_query('*.controller_bus_number') | int }}"
-#        controller_type: "{{ openshift_vsphere_disk_info.guest_disk_info | json_query('*.controller_type') | join }}"
-#        state: "present"
-#        unit_number: 2
-#    validate_certs: false
-#  delegate_to: localhost
-#  when: item.role in ["master","worker"]

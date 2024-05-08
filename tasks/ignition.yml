@@ -36,31 +36,20 @@
     - "master"
     - "worker"
 
-#- name: Create a Butane config that configures the additional partition.
-#  template:
-#    src: "partition.bu"
-#    dest: "ignition/openshift/98-{{ item.role }}-partition.bu"
-#  loop: "{{ openshift_node.hosts }}"
-#  when: item.role in ["master","worker"]
-
 - name: Generate a chrony time service object file.
   shell:
-    cmd: butane ignition/openshift/{{ item }}.bu -o ignition/openshift/{{ item }}.yaml
+    cmd: butane ignition/openshift/99-{{ item }}-chrony.bu -o ignition/openshift/99-{{ item }}-chrony.yaml
   loop:
-    - "99-master-chrony"
-    - "99-worker-chrony"
-#    - "98-master-partition"
-#    - "98-worker-partition"
+    - "master"
+    - "worker"
 
 - name: Remove a Butane config including the chrony time service contents.
   file:
-    path: "ignition/openshift/{{ item }}.bu"
+    path: "ignition/openshift/99-{{ item }}-chrony.bu"
     state: "absent"
   loop:
-    - "99-master-chrony"
-    - "99-worker-chrony"
-#    - "98-master-partition"
-#    - "98-worker-partition"
+    - "master"
+    - "worker"
 
 - name: Invoking the installer to get manifests.
   shell:
