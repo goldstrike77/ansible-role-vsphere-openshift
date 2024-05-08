@@ -13,7 +13,7 @@ openshift_network:
   machine: "192.168.0.0/24" # IP address blocks for machines.
   hostprefix: "23" # The subnet prefix length to assign to each individual node.
   service: "172.30.0.0/16" # The IP address block for services.
-  apivips: "192.168.0.169" # Virtual IP (VIP) addresses that you configured for control plane API access.
+  apivips: "192.168.0.167" # Virtual IP (VIP) addresses that you configured for control plane API access.
   ingressvips: "192.168.0.168" # Virtual IP (VIP) addresses that you configured for cluster Ingress.
 
 # vSphere parameters #
@@ -53,7 +53,7 @@ openshift_vsphere:
 
 # HTTP parameters #
 #openshift_ignition_bucket:
-#  type: "s3"
+#  provider: "s3"
 #  access_key: 'admin'
 #  secret_key: 'password'
 #  bucket: 'ignition'
@@ -62,7 +62,7 @@ openshift_vsphere:
 
 # DNS parameters #
 #openshift_dns:
-#  type: "win"
+#  provider: "win"
 #  forward_zone: '{{ openshift_domain }}'
 #  reverse_zone: "192.in-addr.arpa"
 
@@ -94,6 +94,13 @@ openshift_vsphere:
 #    - { name: "s-master-03", ip: "192.168.0.163", role: "master" }
 #    - { name: "s-worker-01", ip: "192.168.0.164", role: "worker" }
 #    - { name: "s-worker-02", ip: "192.168.0.165", role: "worker" }
+
+# Load Balancer parameters #
+#openshift_lb:
+#  provider: "f5"
+#  server: "192.168.0.170"
+#  user: "admin"
+#  password: "password"
 
 # Service Mesh #
 customer: "it" # Define the customer name.

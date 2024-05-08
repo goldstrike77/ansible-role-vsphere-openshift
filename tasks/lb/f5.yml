@@ -1,0 +1,209 @@
+---
+- name: Change route domain of partition {{ openshift_lb.partition }}.
+  bigip_partition:
+    name: "partition-{{ openshift_cluster }}"
+    provider:
+      server: "{{ openshift_lb.server }}"
+      user: "{{ openshift_lb.username }}"
+      password: "{{ openshift_lb.password }}"
+      validate_certs: false
+  delegate_to: localhost
+
+- name: Create Kubernetes API, Bootstrap and Ingress HTTPs Monitors.
+  bigip_monitor_https:
+    name: "monitor-{{ openshift_cluster }}-{{ item }}"
+    ip: "*"
+    port: "{{ item }}"
+    partition: "partition-{{ openshift_cluster }}"
+    provider:
+      server: "{{ openshift_lb.server }}"
+      user: "{{ openshift_lb.username }}"
+      password: "{{ openshift_lb.password }}"
+      validate_certs: false
+  delegate_to: localhost
+  loop:
+    - "443"
+    - "6443"
+    - "22623"
+
+- name: Create Ingress HTTP Monitors.
+  bigip_monitor_http:
+    name: "monitor-{{ openshift_cluster }}-80"
+    ip: "*"
+    port: "80"
+    partition: "partition-{{ openshift_cluster }}"
+    provider:
+      server: "{{ openshift_lb.server }}"
+      user: "{{ openshift_lb.username }}"
+      password: "{{ openshift_lb.password }}"
+      validate_certs: false
+  delegate_to: localhost
+
+- name: Manages bootstrap and master nodes.
+  bigip_node:
+    address: "{{ item.ip }}"
+    name: "{{ item.name }}"
+    state: "present"
+    partition: "partition-{{ openshift_cluster }}"
+    monitors:
+      - "monitor-{{ openshift_cluster }}-6443"
+      - "monitor-{{ openshift_cluster }}-22623"
+    availability_requirements:
+      at_least: 1
+      type: at_least
+    provider:
+      server: "{{ openshift_lb.server }}"
+      user: "{{ openshift_lb.username }}"
+      password: "{{ openshift_lb.password }}"
+      validate_certs: false
+  delegate_to: localhost
+  loop: "{{ openshift_node.hosts }}"
+  when: '{{ item.role in ["bootstrap","master" ] }}'
+
+- name: Manages worker nodes.
+  bigip_node:
+    address: "{{ item.ip }}"
+    name: "{{ item.name }}"
+    state: "present"
+    partition: "partition-{{ openshift_cluster }}"
+    monitors:
+      - "monitor-{{ openshift_cluster }}-80"
+      - "monitor-{{ openshift_cluster }}-443"
+    availability_requirements:
+      at_least: 1
+      type: at_least
+    provider:
+      server: "{{ openshift_lb.server }}"
+      user: "{{ openshift_lb.username }}"
+      password: "{{ openshift_lb.password }}"
+      validate_certs: false
+  delegate_to: localhost
+  loop: "{{ openshift_node.hosts }}"
+  when: '{{ item.role in ["worker"] }}'
+
+- name: Create Kubernetes pools.
+  bigip_pool:
+    name: "pool-{{ openshift_cluster }}-{{ item }}"
+    lb_method: "round-robin"
+    partition: "partition-{{ openshift_cluster }}"
+    state: "present"
+    monitors: "monitor-{{ openshift_cluster }}-{{ item }}"
+    provider:
+      server: "{{ openshift_lb.server }}"
+      user: "{{ openshift_lb.username }}"
+      password: "{{ openshift_lb.password }}"
+      validate_certs: false
+  delegate_to: localhost
+  loop:
+    - "80"
+    - "443"
+    - "6443"
+    - "22623"
+
+- name: Add bootstrap and master nodes to api pool.
+  bigip_pool_member:
+    host: "{{ item.ip }}"
+    name: "{{ item.name }}"
+    pool: "pool-{{ openshift_cluster }}-6443"
+    port: "6443"
+    state: "present"
+    partition: "partition-{{ openshift_cluster }}"
+    provider:
+      server: "{{ openshift_lb.server }}"
+      user: "{{ openshift_lb.username }}"
+      password: "{{ openshift_lb.password }}"
+      validate_certs: false
+  delegate_to: localhost
+  loop: "{{ openshift_node.hosts }}"
+  when: '{{ item.role in ["bootstrap","master" ] }}'
+
+- name: Add bootstrap and master nodes to bootstrap api pool.
+  bigip_pool_member:
+    host: "{{ item.ip }}"
+    name: "{{ item.name }}"
+    pool: "pool-{{ openshift_cluster }}-22623"
+    port: "22623"
+    state: "present"
+    partition: "partition-{{ openshift_cluster }}"
+    provider:
+      server: "{{ openshift_lb.server }}"
+      user: "{{ openshift_lb.username }}"
+      password: "{{ openshift_lb.password }}"
+      validate_certs: false
+  delegate_to: localhost
+  loop: "{{ openshift_node.hosts }}"
+  when: '{{ item.role in ["bootstrap","master" ] }}'
+
+- name: Add worker nodes to https pool.
+  bigip_pool_member:
+    host: "{{ item.ip }}"
+    name: "{{ item.name }}"
+    pool: "pool-{{ openshift_cluster }}-443"
+    port: "443"
+    state: "present"
+    partition: "partition-{{ openshift_cluster }}"
+    provider:
+      server: "{{ openshift_lb.server }}"
+      user: "{{ openshift_lb.username }}"
+      password: "{{ openshift_lb.password }}"
+      validate_certs: false
+  delegate_to: localhost
+  loop: "{{ openshift_node.hosts }}"
+  when: '{{ item.role in ["worker"] }}'
+
+- name: Add worker nodes to http pool
+  bigip_pool_member:
+    host: "{{ item.ip }}"
+    name: "{{ item.name }}"
+    pool: "pool-{{ openshift_cluster }}-80"
+    port: "80"
+    state: "present"
+    partition: "partition-{{ openshift_cluster }}"
+    provider:
+      server: "{{ openshift_lb.server }}"
+      user: "{{ openshift_lb.username }}"
+      password: "{{ openshift_lb.password }}"
+      validate_certs: false
+  delegate_to: localhost
+  loop: "{{ openshift_node.hosts }}"
+  when: '{{ item.role in ["worker"] }}'
+
+- name: Create API vip.
+  bigip_virtual_server:
+    description: "pool-{{ openshift_cluster }}-{{ item }}"
+    destination: "{{ openshift_network.apivips }}"
+    name: "vip-{{ openshift_cluster }}-{{ item }}"
+    pool: "pool-{{ openshift_cluster }}-{{ item }}"
+    port: "{{ item }}"
+    snat: Automap
+    state: "present"
+    partition: "partition-{{ openshift_cluster }}"
+    provider:
+      server: "{{ openshift_lb.server }}"
+      user: "{{ openshift_lb.username }}"
+      password: "{{ openshift_lb.password }}"
+      validate_certs: false
+  delegate_to: localhost
+  loop:
+    - "6443"
+    - "22623"
+
+- name: Create Ingress vip.
+  bigip_virtual_server:
+    description: "pool-{{ openshift_cluster }}-{{ item }}"
+    destination: "{{ openshift_network.ingressvips }}"
+    name: "vip-{{ openshift_cluster }}-{{ item }}"
+    pool: "pool-{{ openshift_cluster }}-{{ item }}"
+    port: "{{ item }}"
+    snat: Automap
+    state: "present"
+    partition: "partition-{{ openshift_cluster }}"
+    provider:
+      server: "{{ openshift_lb.server }}"
+      user: "{{ openshift_lb.username }}"
+      password: "{{ openshift_lb.password }}"
+      validate_certs: false
+  delegate_to: localhost
+  loop:
+    - "80"
+    - "443"
