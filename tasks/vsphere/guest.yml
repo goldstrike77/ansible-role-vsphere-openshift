@@ -44,3 +44,4 @@
     validate_certs: false
   delegate_to: localhost
   when: openshift_vsphere_guest_facts.instance is not defined
+  

@@ -12,7 +12,7 @@ controlPlane:
   hyperthreading: Enabled
   name: master
   platform: {}
-  replicas: 3
+  replicas: {{ openshift_master | count }}
 metadata:
   creationTimestamp: null
   name: {{ openshift_cluster }}

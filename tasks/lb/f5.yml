@@ -1,5 +1,5 @@
 ---
-- name: Change route domain of partition {{ openshift_lb.partition }}.
+- name: Change F5 BIG-IP LTM route domain of partition partition-{{ openshift_cluster }}.
   bigip_partition:
     name: "partition-{{ openshift_cluster }}"
     provider:
@@ -9,12 +9,13 @@
       validate_certs: false
   delegate_to: localhost
 
-- name: Create Kubernetes API, Bootstrap and Ingress HTTPs Monitors.
+- name: Create F5 BIG-IP LTM Kubernetes API, Bootstrap and Ingress HTTPs Monitors.
   bigip_monitor_https:
-    name: "monitor-{{ openshift_cluster }}-{{ item }}"
+    name: "monitor-{{ openshift_cluster }}-{{ item.port }}"
     ip: "*"
-    port: "{{ item }}"
+    port: "{{ item.port }}"
     partition: "partition-{{ openshift_cluster }}"
+    send: "{{ item.send }}"
     provider:
       server: "{{ openshift_lb.server }}"
       user: "{{ openshift_lb.username }}"
@@ -22,11 +23,11 @@
       validate_certs: false
   delegate_to: localhost
   loop:
-    - "443"
-    - "6443"
-    - "22623"
+    - { port: "443", send: "GET /\\r\\n" }
+    - { port: "6443", send: "GET /readyz\\r\\n" }
+    - { port: "22623", send: "GET /\\r\\n" }
 
-- name: Create Ingress HTTP Monitors.
+- name: Create F5 BIG-IP LTM Ingress HTTP Monitors.
   bigip_monitor_http:
     name: "monitor-{{ openshift_cluster }}-80"
     ip: "*"
@@ -39,15 +40,13 @@
       validate_certs: false
   delegate_to: localhost
 
-- name: Manages bootstrap and master nodes.
+- name: Create F5 BIG-IP LTM Kubernetes nodes.
   bigip_node:
     address: "{{ item.ip }}"
     name: "{{ item.name }}"
     state: "present"
     partition: "partition-{{ openshift_cluster }}"
-    monitors:
-      - "monitor-{{ openshift_cluster }}-6443"
-      - "monitor-{{ openshift_cluster }}-22623"
+    monitors: '{% if item.role in ["bootstrap","master"] %}["monitor-{{ openshift_cluster }}-6443","monitor-{{ openshift_cluster }}-22623"]{% else %}["monitor-{{ openshift_cluster }}-80","monitor-{{ openshift_cluster }}-443"]{% endif %}'
     availability_requirements:
       at_least: 1
       type: at_least
@@ -58,30 +57,8 @@
       validate_certs: false
   delegate_to: localhost
   loop: "{{ openshift_node.hosts }}"
-  when: '{{ item.role in ["bootstrap","master" ] }}'
 
-- name: Manages worker nodes.
-  bigip_node:
-    address: "{{ item.ip }}"
-    name: "{{ item.name }}"
-    state: "present"
-    partition: "partition-{{ openshift_cluster }}"
-    monitors:
-      - "monitor-{{ openshift_cluster }}-80"
-      - "monitor-{{ openshift_cluster }}-443"
-    availability_requirements:
-      at_least: 1
-      type: at_least
-    provider:
-      server: "{{ openshift_lb.server }}"
-      user: "{{ openshift_lb.username }}"
-      password: "{{ openshift_lb.password }}"
-      validate_certs: false
-  delegate_to: localhost
-  loop: "{{ openshift_node.hosts }}"
-  when: '{{ item.role in ["worker"] }}'
-
-- name: Create Kubernetes pools.
+- name: Create F5 BIG-IP LTM Kubernetes pools.
   bigip_pool:
     name: "pool-{{ openshift_cluster }}-{{ item }}"
     lb_method: "round-robin"
@@ -94,18 +71,15 @@
       password: "{{ openshift_lb.password }}"
       validate_certs: false
   delegate_to: localhost
-  loop:
-    - "80"
-    - "443"
-    - "6443"
-    - "22623"
+  loop: ["80", "443", "6443", "22623"]
 
-- name: Add bootstrap and master nodes to api pool.
+- name: Add bootstrap and master nodes to bootstrap F5 BIG-IP LTM api pool.
   bigip_pool_member:
-    host: "{{ item.ip }}"
-    name: "{{ item.name }}"
-    pool: "pool-{{ openshift_cluster }}-6443"
-    port: "6443"
+    host: "{{ item.0.ip }}"
+    name: "{{ item.0.name }}"
+    pool: "pool-{{ openshift_cluster }}-{{ item.1 }}"
+    port: "{{ item.1 }}"
+    priority_group: '{% if item.0.role == "master" %}10{% else %}0{% endif %}'
     state: "present"
     partition: "partition-{{ openshift_cluster }}"
     provider:
@@ -114,15 +88,15 @@
       password: "{{ openshift_lb.password }}"
       validate_certs: false
   delegate_to: localhost
-  loop: "{{ openshift_node.hosts }}"
-  when: '{{ item.role in ["bootstrap","master" ] }}'
+  loop: '{{ openshift_node.hosts | product(["6443","22623"]) | list  }}'
+  when: '{{ item.0.role in ["bootstrap","master"] }}'
 
-- name: Add bootstrap and master nodes to bootstrap api pool.
+- name: Add worker nodes to F5 BIG-IP LTM ingress pool.
   bigip_pool_member:
-    host: "{{ item.ip }}"
-    name: "{{ item.name }}"
-    pool: "pool-{{ openshift_cluster }}-22623"
-    port: "22623"
+    host: "{{ item.0.ip }}"
+    name: "{{ item.0.name }}"
+    pool: "pool-{{ openshift_cluster }}-{{ item.1 }}"
+    port: "{{ item.1 }}"
     state: "present"
     partition: "partition-{{ openshift_cluster }}"
     provider:
@@ -131,46 +105,11 @@
       password: "{{ openshift_lb.password }}"
       validate_certs: false
   delegate_to: localhost
-  loop: "{{ openshift_node.hosts }}"
-  when: '{{ item.role in ["bootstrap","master" ] }}'
+  loop: '{{ openshift_node.hosts | product(["80","443"]) | list  }}'
+  when: '{{ item.0.role in ["worker"] }}'
 
-- name: Add worker nodes to https pool.
-  bigip_pool_member:
-    host: "{{ item.ip }}"
-    name: "{{ item.name }}"
-    pool: "pool-{{ openshift_cluster }}-443"
-    port: "443"
-    state: "present"
-    partition: "partition-{{ openshift_cluster }}"
-    provider:
-      server: "{{ openshift_lb.server }}"
-      user: "{{ openshift_lb.username }}"
-      password: "{{ openshift_lb.password }}"
-      validate_certs: false
-  delegate_to: localhost
-  loop: "{{ openshift_node.hosts }}"
-  when: '{{ item.role in ["worker"] }}'
-
-- name: Add worker nodes to http pool
-  bigip_pool_member:
-    host: "{{ item.ip }}"
-    name: "{{ item.name }}"
-    pool: "pool-{{ openshift_cluster }}-80"
-    port: "80"
-    state: "present"
-    partition: "partition-{{ openshift_cluster }}"
-    provider:
-      server: "{{ openshift_lb.server }}"
-      user: "{{ openshift_lb.username }}"
-      password: "{{ openshift_lb.password }}"
-      validate_certs: false
-  delegate_to: localhost
-  loop: "{{ openshift_node.hosts }}"
-  when: '{{ item.role in ["worker"] }}'
-
-- name: Create API vip.
+- name: Create F5 BIG-IP LTM API virtual servers.
   bigip_virtual_server:
-    description: "pool-{{ openshift_cluster }}-{{ item }}"
     destination: "{{ openshift_network.apivips }}"
     name: "vip-{{ openshift_cluster }}-{{ item }}"
     pool: "pool-{{ openshift_cluster }}-{{ item }}"
@@ -184,13 +123,10 @@
       password: "{{ openshift_lb.password }}"
       validate_certs: false
   delegate_to: localhost
-  loop:
-    - "6443"
-    - "22623"
+  loop: ["6443", "22623"]
 
-- name: Create Ingress vip.
+- name: Create F5 BIG-IP LTM Ingress virtual servers.
   bigip_virtual_server:
-    description: "pool-{{ openshift_cluster }}-{{ item }}"
     destination: "{{ openshift_network.ingressvips }}"
     name: "vip-{{ openshift_cluster }}-{{ item }}"
     pool: "pool-{{ openshift_cluster }}-{{ item }}"
@@ -204,6 +140,4 @@
       password: "{{ openshift_lb.password }}"
       validate_certs: false
   delegate_to: localhost
-  loop:
-    - "80"
-    - "443"
+  loop: ["80", "443"]

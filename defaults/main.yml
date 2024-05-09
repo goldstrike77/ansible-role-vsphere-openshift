@@ -14,7 +14,7 @@ openshift_network:
   hostprefix: "23" # The subnet prefix length to assign to each individual node.
   service: "172.30.0.0/16" # The IP address block for services.
   apivips: "192.168.0.167" # Virtual IP (VIP) addresses that you configured for control plane API access.
-  ingressvips: "192.168.0.168" # Virtual IP (VIP) addresses that you configured for cluster Ingress.
+  ingressvips: "192.168.0.166" # Virtual IP (VIP) addresses that you configured for cluster Ingress.
 
 # vSphere parameters #
 openshift_vsphere:

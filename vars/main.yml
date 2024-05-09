@@ -1,1 +1,9 @@
 ---
+openshift_master: "\
+  {% set _openshift_master = [] %}\
+  {% for i in openshift_node.hosts %}\
+  {% if ( i.role == 'master' ) %}\
+  {% if _openshift_master.append(i.ip) %}{% endif %}\
+  {% endif %}\
+  {% endfor %}\
+  {{ _openshift_master }}"
