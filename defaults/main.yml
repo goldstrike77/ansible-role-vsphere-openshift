@@ -25,7 +25,7 @@ openshift_vsphere:
   datacenter: "cn-north" # Defines the datacenters where OpenShift Container Platform virtual machines (VMs) operate.
   defaultdatastore: "ds-san-lun0" # The path to the vSphere datastore that holds virtual machine files, templates, and ISO images.
   folder: "{{ customer }}/{{ environments }}/{{ project }}/{{ group }}" # The absolute path of an existing folder where the installation program creates the virtual machines.
-  resourcepool:  # The absolute path of an existing resource pool where the installation program creates the virtual machines.
+  resourcepool: # The absolute path of an existing resource pool where the installation program creates the virtual machines.
     name: "rp-{{ customer }}-{{ environments }}-{{ project }}-{{ group }}"
     mem_shares: "normal"
     mem_limit: -1
