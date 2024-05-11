@@ -16,20 +16,22 @@
   when: not openshift_ignition_result.stat.exists | bool
 
 - name: Operation for DNS configuration.
-  ansible.builtin.include_tasks: "dns/{{ openshift_dns.provider }}.yml"
+  ansible.builtin.include_tasks: "dns/{{ openshift_dns.provider | lower }}.yml"
   when:
     - openshift_dns is defined
     - group_names[0] == 'dns'
 
 - name: Operation for Load Balancer configuration.
-  ansible.builtin.include_tasks: "lb/{{ openshift_lb.provider }}.yml"
+  ansible.builtin.include_tasks: "lb/{{ openshift_lb.provider | lower }}.yml"
   when: openshift_lb is defined
 
 - name: Manage VMware vSphere resource pools.
   ansible.builtin.include_tasks: "vsphere/resource_pool.yml"
+  when: openshift_state == "present"
 
 - name: Manage folders on given datacenter.
   ansible.builtin.include_tasks: "vsphere/folder.yml"
+  when: openshift_state == "present"
 
 - name: Gather resource pool info about all resource pools available.
   community.vmware.vmware_resource_pool_info:
@@ -37,21 +39,10 @@
     username: "{{ openshift_vsphere.user }}@{{ openshift_vsphere.vcenter }}"
     password: "{{ openshift_vsphere.password }}"
     validate_certs: false
+  delegate_to: localhost
   register: openshift_vsphere_rp_info
-  delegate_to: localhost
 
-- name: Gather disk info from compute machines {{ openshift_node.template }}.
-  community.vmware.vmware_guest_disk_info:
-    hostname: "{{ openshift_vsphere.vcenter }}"
-    username: "{{ openshift_vsphere.user }}@{{ openshift_vsphere.vcenter }}"
-    password: "{{ openshift_vsphere.password }}"
-    datacenter: "{{ openshift_vsphere.datacenter }}"
-    name: "{{ openshift_node.template }}"
-    validate_certs: false
-  delegate_to: localhost
-  register: openshift_vsphere_disk_info
-
-- name: Manages compute machines in vCenter.
+- name: Operation for compute machines configuration in vCenter.
   ansible.builtin.include_tasks: "vsphere/guest.yml"
   loop: "{{ openshift_node.hosts }}"
   when: openshift_node.hosts is defined

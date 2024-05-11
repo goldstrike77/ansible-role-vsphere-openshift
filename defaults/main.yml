@@ -1,6 +1,6 @@
 ---
 # General parameters #
-openshift_is_install: false # A boolean to determine whether or not to install the OpenShift.
+openshift_state: "present" # A boolean to determine whether or not to install the OpenShift, Valid values are present or absent.
 openshift_version: "4.15" # Specify the OpenShift version.
 openshift_release: "ocp" # Define OpenShift distribution, Valid values are ocp(OpenShift Container Platform) or okd(Origin Community Distribution).
 openshift_cluster: "{{ openshift_release }}-{{ customer }}-{{ environments }}-{{ project }}-{{ group }}-01"
@@ -38,69 +38,86 @@ openshift_vsphere:
   networks: ["vlan-trunk-portrgoup"] # Lists any network in the vCenter instance that contains the virtual IP addresses and DNS records that you configured.
 
 # Container Registry parameters #
-#openshift_cr:
-#  pullsecret: '{"auths":{"swr.cn-east-3.myhuaweicloud.com":{"auth":"Y24tZWFzdC0zQFJPTU5TQ0NHWTdOVkg0NUZJMktVOjdmODVjNTVkOTRkZWEzOTVhZTkwZjY4NjBiMTA1NWNhZTk4MzE0NTVjMzhhNDI2ZTNhZjM2MjZmMzE4NDViZDg=","email":"you@example.com"}}}'
-#  imagecontentsources:
-#    - mirrors: ["swr.cn-east-3.myhuaweicloud.com/ocp4/openshift4"]
-#      source: "quay.io/openshift-release-dev/ocp-release"
-#    - mirrors: ["swr.cn-east-3.myhuaweicloud.com/ocp4/openshift4"]
-#      source: "quay.io/openshift-release-dev/ocp-v4.0-art-dev"
-#  additionaltrustbundle:
-#    | # A PEM-encoded X.509 certificate bundle that is added to the nodes' trusted certificate store.
-#    -----BEGIN CERTIFICATE-----
-#    MIIDXzCCAkegAwIBAgILBAAAAAABIVhTCKIwDQYJKoZIhvcNAQELBQAwTDEgMB4G
-#    -----END CERTIFICATE-----
+openshift_cr:
+  pullsecret: '{"auths":{"obs.home.local":{"auth":"YWRtaW46UGFzc3cwcmQ=","email":"you@example.com"}}}'
+  imagecontentsources:
+    - mirrors: ["obs.home.local/ocp4/openshift4"]
+      source: "quay.io/openshift-release-dev/ocp-release"
+    - mirrors: ["obs.home.local/ocp4/openshift4"]
+      source: "quay.io/openshift-release-dev/ocp-v4.0-art-dev"
+  additionaltrustbundle: | # A PEM-encoded X.509 certificate bundle that is added to the nodes' trusted certificate store.
+    -----BEGIN CERTIFICATE-----
+    MIIDRDCCAiwCCQCLL4t71Jt1ojANBgkqhkiG9w0BAQsFADBkMQswCQYDVQQGEwJY
+    WDENMAsGA1UECAwETWFyczEWMBQGA1UEBwwNTW91bnQgT2x5bXB1czEQMA4GA1UE
+    CgwHQ29tcGFueTENMAsGA1UECwwEVW5pdDENMAsGA1UEAwwEUk9PVDAeFw0yMDA2
+    MTEwOTE2MzlaFw00MDA2MTEwOTE2MzlaMGQxCzAJBgNVBAYTAlhYMQ0wCwYDVQQI
+    DARNYXJzMRYwFAYDVQQHDA1Nb3VudCBPbHltcHVzMRAwDgYDVQQKDAdDb21wYW55
+    MQ0wCwYDVQQLDARVbml0MQ0wCwYDVQQDDARST09UMIIBIjANBgkqhkiG9w0BAQEF
+    AAOCAQ8AMIIBCgKCAQEA0gpK3LDFYKib5XZs0IlEL/Mzx4WdLhhHCPeiYNNKkxKn
+    VaUKE+M/B1K+hTZmYLfG5VAOZgkdpWr7pfmPSN9qWyKNqderAHzQu8A4YbxbSSQV
+    DKVcpQCaHEfjcEKjl0zDIX1MKzJiArJ4YPTCixgDlni195BmDBw100YGa3jw+DxS
+    LLlR8TA7yeLu/0NmDU31/3u5fAVZ+Vqsnlvn+rJ87Zzdkkq4EPPXojpbDIol+TL1
+    BIW+KNLMwZ4g8AGmdzfRP+ztmNqnK/M7j+KhK7XI2YpvkdhSCXmdx/gUs5S8xmhP
+    XKcSLFYhWsxj3wo9ZXsmwAjfQaS6Zfy4+F7junBlDQIDAQABMA0GCSqGSIb3DQEB
+    CwUAA4IBAQBDrF/ceHWzXwobHoPLLwi+mJxGsS6ROU3Qs2siLdBz374NMfA2Stke
+    Mj4uOTvcvgzl/yMMVLg/sQXLyo/gEa9Ya4XdX4qNiDcCp3x6J3gmkl0kqO687yQJ
+    EumEWUWrfxgjxtHR1C/cTEgqc6F0RWGsV+23dOBoLoQBkv4cTldyj0FLDIdIHwjw
+    AW3Py12YobJ54lv8jlfaUEf5x7gwyMny04uh4hM5MGMVGof+wQZuM4bY30dV526y
+    AOqx13cHJzMBEmxhWQ5gdP3c9wJqUnI+002ON7bZr9mUtCEZoBSu41oT8lhc4m4d
+    YB2cjNpMuRLjcS6Ge5rABpyAFYoTThXv
+    -----END CERTIFICATE-----
 
 # HTTP parameters #
-#openshift_ignition_bucket:
-#  provider: "s3"
-#  access_key: 'admin'
-#  secret_key: 'password'
-#  bucket: 'ignition'
-#  endpoint_url: "http://obs.home.local:9000"
-#  encrypt: false
+openshift_ignition_bucket:
+  provider: "s3"
+  access_key: 'admin'
+  secret_key: 'password'
+  bucket: 'ignition'
+  endpoint_url: "http://obs.home.local:9000"
+  encrypt: false
 
 # DNS parameters #
-#openshift_dns:
-#  provider: "win"
-#  forward_zone: '{{ openshift_domain }}'
-#  reverse_zone: "192.in-addr.arpa"
+openshift_dns:
+  provider: "win"
+  forward_zone: '{{ openshift_domain }}'
+  reverse_zone: "192.in-addr.arpa"
 
 # Node parameters #
-#openshift_node:
-#  gateway: "192.168.0.1"
-#  netmask: "255.255.255.0"
-#  dns: ["192.168.0.251"]
-#  ntp: ["ntp1.aliyun.com", "ntp2.aliyun.com", "ntp3.aliyun.com"]
-#  datastore: "ds-san-lun1"
-#  disktype: "thin"
-#  template: "template-RHCOS415"
-#  specs:
-#    bootstrap:
-#      cpucount: 4
-#      memory: 8
-#    master:
-#      cpucount: 4
-#      memory: 8
-#      disk: 63
-#    worker:
-#      cpucount: 10
-#      memory: 32
-#      disk: 127
-#  hosts:
-#    - { name: "s-bootstrap-01", ip: "192.168.0.160", role: "bootstrap" }
-#    - { name: "s-master-01", ip: "192.168.0.161", role: "master" }
-#    - { name: "s-master-02", ip: "192.168.0.162", role: "master" }
-#    - { name: "s-master-03", ip: "192.168.0.163", role: "master" }
-#    - { name: "s-worker-01", ip: "192.168.0.164", role: "worker" }
-#    - { name: "s-worker-02", ip: "192.168.0.165", role: "worker" }
+openshift_node:
+  gateway: "192.168.0.1"
+  netmask: "255.255.255.0"
+  dns: ["192.168.0.251"]
+  ntp: ["ntp1.aliyun.com", "ntp2.aliyun.com", "ntp3.aliyun.com"]
+  datastore: "ds-san-lun1"
+  disktype: "thin"
+  template: "template-RHCOS415"
+  specs:
+    bootstrap:
+      cpucount: 4
+      memory: 8
+    master:
+      cpucount: 4
+      memory: 8
+      disk: 63
+    worker:
+      cpucount: 10
+      memory: 32
+      disk: 127
+  hosts:
+    - { name: "s-bootstrap-01", ip: "192.168.0.160", role: "bootstrap" }
+    - { name: "s-master-01", ip: "192.168.0.161", role: "master" }
+    - { name: "s-master-02", ip: "192.168.0.162", role: "master" }
+    - { name: "s-master-03", ip: "192.168.0.163", role: "master" }
+    - { name: "s-worker-01", ip: "192.168.0.164", role: "worker" }
+    - { name: "s-worker-02", ip: "192.168.0.165", role: "worker" }
 
 # Load Balancer parameters #
-#openshift_lb:
-#  provider: "f5"
-#  server: "192.168.0.170"
-#  user: "admin"
-#  password: "password"
+openshift_lb:
+  provider: "F5"
+  server: "192.168.0.170"
+  user: "admin"
+  password: "password"
+  partition: "{{ customer }}-{{ environments }}-{{ project }}-{{ group }}"
 
 # Service Mesh #
 customer: "it" # Define the customer name.

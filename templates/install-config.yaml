@@ -40,8 +40,10 @@ publish: External
 pullSecret: '{{ openshift_cr.pullsecret }}'
 fips: false
 sshKey: '{{ openshift_sshkey }}'
+{% if openshift_cr.additionaltrustbundle is defined %}
 additionalTrustBundle: |-
 {{ openshift_cr.additionaltrustbundle | indent( width=2, first=True ) }}
+{% endif %}
 {% if openshift_cr.imagecontentsources is defined and openshift_cr.imagecontentsources | length > 0 %}
 imageContentSources:
 {% for i in openshift_cr.imagecontentsources %}

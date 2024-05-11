@@ -1,39 +1,43 @@
 ---
-- name: Create Kubernetes API & Routes A records.
+- name: Manage Kubernetes API & Routes A records.
   community.windows.win_dns_record:
     name: "{{ item.name }}.{{ openshift_cluster }}"
     type: "A"
-    value: "{{ openshift_network[item.ip] }}"
+    value: '{% if openshift_state == "present" %}{{ openshift_network[item.ip] }}{% else %}[]{% endif %}'
     zone: "{{ openshift_dns.forward_zone }}"
+    state: '{{ openshift_state | default ("present") }}'
   loop:
     - { name: "api", ip: "apivips" }
     - { name: "api-int", ip: "apivips" }
     - { name: "*.apps", ip: "ingressvips" }
 
-- name: Create Kubernetes API & Routes PTR records.
+- name: Manage Kubernetes API & Routes PTR records.
   community.windows.win_dns_record:
     name: '{{ openshift_network[item.ip].split(".")[1:4] | reverse | join(".") }}'
     type: "PTR"
-    value: "{{ item.value }}"
+    value: '{% if openshift_state == "present" %}{{ item.value }}{% else %}[]{% endif %}'
     zone: "{{ openshift_dns.reverse_zone }}"
+    state: '{{ openshift_state | default ("present") }}'
   loop:
     - { value: ["api.{{ openshift_cluster }}.{{ openshift_domain }}","api-int.{{ openshift_cluster }}.{{ openshift_domain }}"], ip: "apivips" }
     - { value: ["*.apps.{{ openshift_cluster }}.{{ openshift_domain }}"], ip: "ingressvips" }
 
-- name: Create compute machines A records.
+- name: Manage compute machines A records.
   community.windows.win_dns_record:
     name: "{{ item.name }}.{{ openshift_cluster }}"
     type: "A"
-    value: "{{ item.ip }}"
+    value: '{% if openshift_state == "present" %}{{ item.ip }}{% else %}[]{% endif %}'
     zone: "{{ openshift_dns.forward_zone }}"
+    state: '{{ openshift_state | default ("present") }}'
   loop: "{{ openshift_node.hosts }}"
   when: openshift_node.hosts is defined
 
-- name: Create compute machines PTR records.
+- name: Manage compute machines PTR records.
   community.windows.win_dns_record:
     name: '{{ item.ip.split(".")[1:4] | reverse | join(".") }}'
     type: "PTR"
-    value: "{{ item.name }}.{{ openshift_cluster }}.{{ openshift_domain }}"
+    value: '{% if openshift_state == "present" %}{{ item.name }}.{{ openshift_cluster }}.{{ openshift_domain }}{% else %}[]{% endif %}'
     zone: "{{ openshift_dns.reverse_zone }}"
+    state: '{{ openshift_state | default ("present") }}'
   loop: "{{ openshift_node.hosts }}"
   when: openshift_node.hosts is defined
