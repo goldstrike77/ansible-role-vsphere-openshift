@@ -1,6 +1,6 @@
 ---
 # General parameters #
-openshift_state: "present" # A boolean to determine whether or not to install the OpenShift, Valid values are present or absent.
+openshift_state: "present" # Determine whether or not to install the OpenShift, Valid values are present or absent.
 openshift_version: "4.15" # Specify the OpenShift version.
 openshift_release: "ocp" # Define OpenShift distribution, Valid values are ocp(OpenShift Container Platform) or okd(Origin Community Distribution).
 openshift_cluster: "{{ openshift_release }}-{{ customer }}-{{ environments }}-{{ project }}-{{ group }}-01"

@@ -1,19 +1,4 @@
 ---
-#- name: Gather guest VM facts from VMware vCenter.
-#  community.vmware.vmware_guest_info:
-#    name: "{{ item.name }}"
-#    folder: "{{ openshift_vsphere.datacenter }}/vm/{{ openshift_vsphere.folder }}"
-#    hostname: "{{ openshift_vsphere.vcenter }}"
-#    username: "{{ openshift_vsphere.user }}@{{ openshift_vsphere.vcenter }}"
-#    password: "{{ openshift_vsphere.password }}"
-#    datacenter: "{{ openshift_vsphere.datacenter }}"
-#    validate_certs: false
-#  delegate_to: localhost
-#  changed_when: false
-#  failed_when: false
-#  register: openshift_vsphere_guest_facts
-#  no_log: false
-
 - name: Manages compute machines {{ item.name}} in vSphere.
   community.vmware.vmware_guest:
     hostname: "{{ openshift_vsphere.vcenter }}"
@@ -40,8 +25,6 @@
       - { key: "stealclock.enable", value: "TRUE" }
       - { key: "guestinfo.ignition.config.data", value: '{% if item.role == "bootstrap" %}{{ lookup("file","ignition/merge-bootstrap.ign") | b64encode }}{% elif item.role == "master" %}{{ lookup("file","ignition/master.ign") | b64encode }}{% else %}{{ lookup("file","ignition/worker.ign") | b64encode }}{% endif %}' }
       - { key: "guestinfo.ignition.config.data.encoding", value: "base64" }
-    wait_for_ip_address: "no"
+    wait_for_ip_address: "yes"
     validate_certs: false
   delegate_to: localhost
-#  when: openshift_vsphere_guest_facts.instance is not defined
-  
