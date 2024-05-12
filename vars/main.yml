@@ -7,3 +7,12 @@ openshift_master: "\
   {% endif %}\
   {% endfor %}\
   {{ _openshift_master }}"
+
+openshift_worker: "\
+  {% set _openshift_worker = [] %}\
+  {% for i in openshift_node.hosts %}\
+  {% if ( i.role == 'worker' ) %}\
+  {% if _openshift_worker.append(i.ip) %}{% endif %}\
+  {% endif %}\
+  {% endfor %}\
+  {{ _openshift_worker }}"

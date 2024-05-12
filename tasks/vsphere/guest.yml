@@ -25,6 +25,6 @@
       - { key: "stealclock.enable", value: "TRUE" }
       - { key: "guestinfo.ignition.config.data", value: '{% if item.role == "bootstrap" %}{{ lookup("file","ignition/merge-bootstrap.ign") | b64encode }}{% elif item.role == "master" %}{{ lookup("file","ignition/master.ign") | b64encode }}{% else %}{{ lookup("file","ignition/worker.ign") | b64encode }}{% endif %}' }
       - { key: "guestinfo.ignition.config.data.encoding", value: "base64" }
-    wait_for_ip_address: "yes"
+    wait_for_ip_address: "no"
     validate_certs: false
   delegate_to: localhost

@@ -6,13 +6,13 @@ compute:
   hyperthreading: Enabled
   name: worker
   platform: {}
-  replicas: 0
+  replicas: {{ openshift_master | count }}
 controlPlane:
   architecture: amd64
   hyperthreading: Enabled
   name: master
   platform: {}
-  replicas: {{ openshift_master | count }}
+  replicas: {{ openshift_worker | count }}
 metadata:
   creationTimestamp: null
   name: {{ openshift_cluster }}
@@ -39,6 +39,9 @@ platform:
 publish: External
 pullSecret: '{{ openshift_cr.pullsecret }}'
 fips: false
+capabilities:
+  baselineCapabilitySet: None
+  additionalEnabledCapabilities: {{ openshift_capabilities }}
 sshKey: '{{ openshift_sshkey }}'
 {% if openshift_cr.additionaltrustbundle is defined %}
 additionalTrustBundle: |-

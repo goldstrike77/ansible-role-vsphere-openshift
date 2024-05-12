@@ -6,6 +6,14 @@ openshift_release: "ocp" # Define OpenShift distribution, Valid values are ocp(O
 openshift_cluster: "{{ openshift_release }}-{{ customer }}-{{ environments }}-{{ project }}-{{ group }}-01"
 openshift_domain: "home.local" # Define the service environment.
 openshift_sshkey: "ssh-rsa AAAA...." # The SSH key to authenticate access to your cluster machines.
+openshift_capabilities: # Determine whether enable or disable optional components prior to installation.
+  - "Build"
+  - "CloudCredential"
+  - "Console"
+  - "CSISnapshot"
+  - "DeploymentConfig"
+  - "MachineAPI"
+  - "Storage"
 
 # Network parameters #
 openshift_network:

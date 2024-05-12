@@ -9,3 +9,7 @@ https://vsphere.local/certs/download.zip
 Butane
 
 DNS Reverse Lookup Zones
+
+
+
+oc get csr -o go-template='{{range .items}}{{if not .status}}{{.metadata.name}}{{"\n"}}{{end}}{{end}}' | xargs --no-run-if-empty oc adm certificate approve
