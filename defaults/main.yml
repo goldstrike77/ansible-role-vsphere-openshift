@@ -11,7 +11,6 @@ openshift_capabilities: # Determine whether enable or disable optional component
   - "CloudCredential"
   - "Console"
   - "CSISnapshot"
-  - "DeploymentConfig"
   - "MachineAPI"
   - "Storage"
 
@@ -112,12 +111,13 @@ openshift_node:
       memory: 32
       disk: 127
   hosts:
-    - { name: "s-bootstrap-01", ip: "192.168.0.160", role: "bootstrap" }
-    - { name: "s-master-01", ip: "192.168.0.161", role: "master" }
-    - { name: "s-master-02", ip: "192.168.0.162", role: "master" }
-    - { name: "s-master-03", ip: "192.168.0.163", role: "master" }
-    - { name: "s-worker-01", ip: "192.168.0.164", role: "worker" }
-    - { name: "s-worker-02", ip: "192.168.0.165", role: "worker" }
+    - { name: "s-bootstrap-01", ip: "192.168.0.120", role: "bootstrap" }
+    - { name: "s-master-01", ip: "192.168.0.121", role: "master" }
+    - { name: "s-master-02", ip: "192.168.0.122", role: "master" }
+    - { name: "s-master-03", ip: "192.168.0.123", role: "master" }
+    - { name: "s-worker-01", ip: "192.168.0.124", role: "worker" }
+    - { name: "s-worker-02", ip: "192.168.0.125", role: "worker" }
+    - { name: "s-worker-03", ip: "192.168.0.126", role: "worker" }
 
 # Load Balancer parameters #
 openshift_lb:
