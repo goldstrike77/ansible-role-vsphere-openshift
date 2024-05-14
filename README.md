@@ -8,7 +8,7 @@ __Table of Contents__
 
 - [Overview](#overview)
 - [Requirements](#requirements)
-  * [vSphere systems](#vSphere-systems)
+  * [vSphere](#vSphere-versions)
   * [Prerequisites](#Prerequisites)
 - [ Role variables](#Role-variables)
   * [Main Configuration](#Main-parameters)
@@ -26,8 +26,8 @@ __Table of Contents__
 Red Hat OpenShift, the industry's leading hybrid cloud application platform powered by Kubernetes, brings together tested and trusted services to reduce the friction of developing, modernizing, deploying, running, and managing applications. OpenShift delivers a consistent experience across public cloud, on-premise, hybrid cloud, or edge architecture.
 
 ## Requirements
-### vSphere systems
-This role will work on the following operating systems:
+### vSphere versions
+This role will work on the following VMware vSphere virtualization platform:
   * 7.0.3
 
 ### Prerequisites:
@@ -47,7 +47,7 @@ There are some variables in defaults/main.yml which can (Or needs to) be overrid
 * `openshift_cluster`: Define OpenShift cluster name.
 * `openshift_domain`: Define the primary domain name.
 * `openshift_sshkey`: The SSH key to authenticate access to your cluster machines.
-* `openshift_capabilities: # Determine whether enable or disable optional components prior to installation.
+* `openshift_capabilities`: Determine whether enable or disable optional components prior to installation.
 
 ##### Network parameters
 * `openshift_network`: Define OpenShift cluster network configuration.
