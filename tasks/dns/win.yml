@@ -26,9 +26,9 @@
   community.windows.win_dns_record:
     name: "{{ item.name }}.{{ openshift_cluster }}"
     type: "A"
-    value: '{% if openshift_state == "present" %}{{ item.ip }}{% else %}[]{% endif %}'
+    value: '{% if openshift_state == "absent" or (item.state is defined and item.state == "absent") %}[]{% else %}{{ item.ip }}{% endif %}'
     zone: "{{ openshift_dns.forward_zone }}"
-    state: '{{ openshift_state | default ("present") }}'
+    state: '{% if item.state is defined and item.state == "absent" %}absent{% else %}{{ openshift_state | default ("present") }}{% endif %}'
   loop: "{{ openshift_node.hosts }}"
   when: openshift_node.hosts is defined
 
@@ -36,8 +36,8 @@
   community.windows.win_dns_record:
     name: '{{ item.ip.split(".")[1:4] | reverse | join(".") }}'
     type: "PTR"
-    value: '{% if openshift_state == "present" %}{{ item.name }}.{{ openshift_cluster }}.{{ openshift_domain }}{% else %}[]{% endif %}'
+    value: '{% if openshift_state == "absent" or (item.state is defined and item.state == "absent") %}[]{% else %}{{ item.name }}.{{ openshift_cluster }}.{{ openshift_domain }}{% endif %}'
     zone: "{{ openshift_dns.reverse_zone }}"
-    state: '{{ openshift_state | default ("present") }}'
+    state: '{% if item.state is defined and item.state == "absent" %}absent{% else %}{{ openshift_state | default ("present") }}{% endif %}'
   loop: "{{ openshift_node.hosts }}"
   when: openshift_node.hosts is defined

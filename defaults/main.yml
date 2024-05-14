@@ -3,8 +3,8 @@
 openshift_state: "present" # Determine whether or not to install the OpenShift, Valid values are present or absent.
 openshift_version: "4.15" # Specify the OpenShift version.
 openshift_release: "ocp" # Define OpenShift distribution, Valid values are ocp(OpenShift Container Platform) or okd(Origin Community Distribution).
-openshift_cluster: "{{ openshift_release }}-{{ customer }}-{{ environments }}-{{ project }}-{{ group }}-01"
-openshift_domain: "home.local" # Define the service environment.
+openshift_cluster: "{{ openshift_release }}-{{ customer }}-{{ environments }}-{{ project }}-{{ group }}-01" # Define OpenShift cluster name.
+openshift_domain: "home.local" # Define the primary domain name.
 openshift_sshkey: "ssh-rsa AAAA...." # The SSH key to authenticate access to your cluster machines.
 openshift_capabilities: # Determine whether enable or disable optional components prior to installation.
   - "Build"
@@ -15,7 +15,7 @@ openshift_capabilities: # Determine whether enable or disable optional component
   - "Storage"
 
 # Network parameters #
-openshift_network:
+openshift_network: # Define OpenShift cluster network configuration.
   cluster: "10.128.0.0/14" # IP address pools from which pod IP addresses are allocated.
   machine: "192.168.0.0/24" # IP address blocks for machines.
   hostprefix: "23" # The subnet prefix length to assign to each individual node.
@@ -24,7 +24,7 @@ openshift_network:
   ingressvips: "192.168.0.166" # Virtual IP (VIP) addresses that you configured for cluster Ingress.
 
 # vSphere parameters #
-openshift_vsphere:
+openshift_vsphere: # Define installation configuration parameters for vSphere.
   vcenter: "vsphere.local" # Specifies the fully-qualified hostname or IP address of the VMware vCenter server.
   user: "administrator" # The username associated with the vSphere user.
   password: "password" # The password associated with the vSphere user.
@@ -45,7 +45,7 @@ openshift_vsphere:
   networks: ["vlan-trunk-portrgoup"] # Lists any network in the vCenter instance that contains the virtual IP addresses and DNS records that you configured.
 
 # Container Registry parameters #
-openshift_cr:
+openshift_cr: # Define container registry configuration.
   pullsecret: '{"auths":{"obs.home.local":{"auth":"YWRtaW46UGFzc3cwcmQ=","email":"you@example.com"}}}'
   imagecontentsources:
     - mirrors: ["obs.home.local/ocp4/openshift4"]
@@ -75,7 +75,7 @@ openshift_cr:
     -----END CERTIFICATE-----
 
 # HTTP parameters #
-openshift_ignition_bucket:
+openshift_ignition_bucket: # Define ignition file URL configuration.
   provider: "s3"
   access_key: 'admin'
   secret_key: 'password'
@@ -84,13 +84,13 @@ openshift_ignition_bucket:
   encrypt: false
 
 # DNS parameters #
-openshift_dns:
+openshift_dns: # Define DNS provider configuration.
   provider: "win"
   forward_zone: '{{ openshift_domain }}'
   reverse_zone: "192.in-addr.arpa"
 
 # Node parameters #
-openshift_node:
+openshift_node: # Define compute machines configuration for vSphere..
   gateway: "192.168.0.1"
   netmask: "255.255.255.0"
   dns: ["192.168.0.251"]
@@ -103,8 +103,8 @@ openshift_node:
       cpucount: 4
       memory: 8
     master:
-      cpucount: 4
-      memory: 8
+      cpucount: 8
+      memory: 16
       disk: 63
     worker:
       cpucount: 10
@@ -120,7 +120,7 @@ openshift_node:
     - { name: "s-worker-03", ip: "192.168.0.126", role: "worker" }
 
 # Load Balancer parameters #
-openshift_lb:
+openshift_lb: # Define load balancer provider configuration.
   provider: "F5"
   server: "192.168.0.170"
   user: "admin"

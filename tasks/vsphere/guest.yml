@@ -11,7 +11,8 @@
     folder: "{{ openshift_vsphere.folder }}"
     name: "{{ item.name }}"
     template: "{{ openshift_node.template }}"
-    state: 'poweredon'
+    state: '{% if item.state is defined and item.state == "absent" %}absent{% else %}poweredon{% endif %}'
+    force: true
     disk:
     - size_gb: '{% if openshift_node.specs[item.role].disk is defined %}{{ openshift_node.specs[item.role].disk | int}}{% else %}25{% endif %}'
       type: "{{ openshift_node.disktype | default('thin') }}"
@@ -27,4 +28,6 @@
       - { key: "guestinfo.ignition.config.data.encoding", value: "base64" }
     wait_for_ip_address: "no"
     validate_certs: false
+  when: (item.role == "bootstrap" and not openshift_ignition_result.stat.exists | bool) or item.role in ["master","worker"]
   delegate_to: localhost
+  

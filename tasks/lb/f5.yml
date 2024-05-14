@@ -1,7 +1,7 @@
 ---
 - name: Change F5 BIG-IP LTM route domain of partition partition-{{ openshift_cluster }}.
   bigip_partition:
-    name: '{{ openshift_lb.partition }}'
+    name: "{{ openshift_lb.partition }}"
     provider:
       server: "{{ openshift_lb.server }}"
       user: "{{ openshift_lb.username }}"
@@ -16,7 +16,7 @@
         name: "monitor-{{ openshift_cluster }}-{{ item.port }}"
         ip: "*"
         port: "{{ item.port }}"
-        partition: '{{ openshift_lb.partition }}'
+        partition: "{{ openshift_lb.partition }}"
         send: "{{ item.send }}"
         provider:
           server: "{{ openshift_lb.server }}"
@@ -33,18 +33,18 @@
         name: "monitor-{{ openshift_cluster }}-80"
         ip: "*"
         port: "80"
-        partition: '{{ openshift_lb.partition }}'
+        partition: "{{ openshift_lb.partition }}"
         provider:
           server: "{{ openshift_lb.server }}"
           user: "{{ openshift_lb.username }}"
           password: "{{ openshift_lb.password }}"
           validate_certs: false
       delegate_to: "localhost"
-    - name: Create F5 BIG-IP LTM Kubernetes nodes.
+    - name: Add F5 BIG-IP LTM Kubernetes nodes.
       bigip_node:
         address: "{{ item.ip }}"
         name: "{{ item.name }}"
-        partition: '{{ openshift_lb.partition }}'
+        partition: "{{ openshift_lb.partition }}"
         monitors: '{% if item.role in ["bootstrap","master"] %}["monitor-{{ openshift_cluster }}-6443","monitor-{{ openshift_cluster }}-22623"]{% else %}["monitor-{{ openshift_cluster }}-80","monitor-{{ openshift_cluster }}-443"]{% endif %}'
         availability_requirements:
           at_least: 1
@@ -56,11 +56,12 @@
           validate_certs: false
       delegate_to: "localhost"
       loop: "{{ openshift_node.hosts }}"
+      when: item.state is not defined or item.state != "absent"
     - name: Create F5 BIG-IP LTM Kubernetes pools.
       bigip_pool:
         name: "pool-{{ openshift_cluster }}-{{ item }}"
         lb_method: "round-robin"
-        partition: '{{ openshift_lb.partition }}'
+        partition: "{{ openshift_lb.partition }}"
         monitors: "monitor-{{ openshift_cluster }}-{{ item }}"
         provider:
           server: "{{ openshift_lb.server }}"
@@ -76,7 +77,7 @@
         pool: "pool-{{ openshift_cluster }}-{{ item.1 }}"
         port: "{{ item.1 }}"
         priority_group: '{% if item.0.role == "master" %}10{% else %}0{% endif %}'
-        partition: '{{ openshift_lb.partition }}'
+        partition: "{{ openshift_lb.partition }}"
         provider:
           server: "{{ openshift_lb.server }}"
           user: "{{ openshift_lb.username }}"
@@ -91,7 +92,7 @@
         name: "{{ item.0.name }}"
         pool: "pool-{{ openshift_cluster }}-{{ item.1 }}"
         port: "{{ item.1 }}"
-        partition: '{{ openshift_lb.partition }}'
+        partition: "{{ openshift_lb.partition }}"
         provider:
           server: "{{ openshift_lb.server }}"
           user: "{{ openshift_lb.username }}"
@@ -99,7 +100,9 @@
           validate_certs: false
       delegate_to: "localhost"
       loop: '{{ openshift_node.hosts | product(["80","443"]) | list  }}'
-      when: '{{ item.0.role in ["worker"] }}'
+      when:
+        - '{{ item.0.role in ["worker"] }}'
+        - item.0.state is not defined or item.0.state != "absent"
     - name: Create F5 BIG-IP LTM API virtual servers.
       bigip_virtual_server:
         destination: "{{ openshift_network.apivips }}"
@@ -107,7 +110,7 @@
         pool: "pool-{{ openshift_cluster }}-{{ item }}"
         port: "{{ item }}"
         snat: Automap
-        partition: '{{ openshift_lb.partition }}'
+        partition: "{{ openshift_lb.partition }}"
         provider:
           server: "{{ openshift_lb.server }}"
           user: "{{ openshift_lb.username }}"
@@ -122,7 +125,7 @@
         pool: "pool-{{ openshift_cluster }}-{{ item }}"
         port: "{{ item }}"
         snat: Automap
-        partition: '{{ openshift_lb.partition }}'
+        partition: "{{ openshift_lb.partition }}"
         provider:
           server: "{{ openshift_lb.server }}"
           user: "{{ openshift_lb.username }}"
@@ -130,6 +133,46 @@
           validate_certs: false
       delegate_to: "localhost"
       loop: ["80", "443"]
+    - name: Delete worker nodes to F5 BIG-IP LTM ingress pool.
+      bigip_pool_member:
+        host: "{{ item.0.ip }}"
+        name: "{{ item.0.name }}"
+        pool: "pool-{{ openshift_cluster }}-{{ item.1 }}"
+        port: "{{ item.1 }}"
+        partition: "{{ openshift_lb.partition }}"
+        state: "absent"
+        provider:
+          server: "{{ openshift_lb.server }}"
+          user: "{{ openshift_lb.username }}"
+          password: "{{ openshift_lb.password }}"
+          validate_certs: false
+      delegate_to: "localhost"
+      loop: '{{ openshift_node.hosts | product(["80","443"]) | list  }}'
+      when:
+        - '{{ item.0.role in ["worker"] }}'
+        - "{{ item.0.state is defined }}"
+        - '{{ item.0.state == "absent" }}'
+    - name: Delete F5 BIG-IP LTM Kubernetes nodes.
+      bigip_node:
+        address: "{{ item.ip }}"
+        name: "{{ item.name }}"
+        partition: "{{ openshift_lb.partition }}"
+        monitors: '{% if item.role in ["bootstrap","master"] %}["monitor-{{ openshift_cluster }}-6443","monitor-{{ openshift_cluster }}-22623"]{% else %}["monitor-{{ openshift_cluster }}-80","monitor-{{ openshift_cluster }}-443"]{% endif %}'
+        availability_requirements:
+          at_least: 1
+          type: at_least
+        state: "absent"
+        provider:
+          server: "{{ openshift_lb.server }}"
+          user: "{{ openshift_lb.username }}"
+          password: "{{ openshift_lb.password }}"
+          validate_certs: false
+      delegate_to: "localhost"
+      loop: "{{ openshift_node.hosts }}"
+      when:
+        - '{{ item.role in ["worker"] }}'
+        - "{{ item.state is defined }}"
+        - '{{ item.state == "absent" }}'
   when: openshift_state == "present"
 
 - name: Operation for F5 BIG-IP configuration destruction.
@@ -141,7 +184,7 @@
         pool: "pool-{{ openshift_cluster }}-{{ item }}"
         port: "{{ item }}"
         snat: Automap
-        partition: '{{ openshift_lb.partition }}'
+        partition: "{{ openshift_lb.partition }}"
         state: "absent"
         provider:
           server: "{{ openshift_lb.server }}"
@@ -157,7 +200,7 @@
         pool: "pool-{{ openshift_cluster }}-{{ item }}"
         port: "{{ item }}"
         snat: Automap
-        partition: '{{ openshift_lb.partition }}'
+        partition: "{{ openshift_lb.partition }}"
         state: "absent"
         provider:
           server: "{{ openshift_lb.server }}"
@@ -173,7 +216,7 @@
         pool: "pool-{{ openshift_cluster }}-{{ item.1 }}"
         port: "{{ item.1 }}"
         priority_group: '{% if item.0.role == "master" %}10{% else %}0{% endif %}'
-        partition: '{{ openshift_lb.partition }}'
+        partition: "{{ openshift_lb.partition }}"
         state: "absent"
         provider:
           server: "{{ openshift_lb.server }}"
@@ -191,7 +234,7 @@
         name: "{{ item.0.name }}"
         pool: "pool-{{ openshift_cluster }}-{{ item.1 }}"
         port: "{{ item.1 }}"
-        partition: '{{ openshift_lb.partition }}'
+        partition: "{{ openshift_lb.partition }}"
         state: "absent"
         provider:
           server: "{{ openshift_lb.server }}"
@@ -207,7 +250,7 @@
       bigip_node:
         address: "{{ item.ip }}"
         name: "{{ item.name }}"
-        partition: '{{ openshift_lb.partition }}'
+        partition: "{{ openshift_lb.partition }}"
         monitors: '{% if item.role in ["bootstrap","master"] %}["monitor-{{ openshift_cluster }}-6443","monitor-{{ openshift_cluster }}-22623"]{% else %}["monitor-{{ openshift_cluster }}-80","monitor-{{ openshift_cluster }}-443"]{% endif %}'
         availability_requirements:
           at_least: 1
@@ -224,9 +267,9 @@
       bigip_pool:
         name: "pool-{{ openshift_cluster }}-{{ item }}"
         lb_method: "round-robin"
-        partition: '{{ openshift_lb.partition }}'
+        partition: "{{ openshift_lb.partition }}"
         monitors: "monitor-{{ openshift_cluster }}-{{ item }}"
-        state: "absent"        
+        state: "absent"
         provider:
           server: "{{ openshift_lb.server }}"
           user: "{{ openshift_lb.username }}"
@@ -239,7 +282,7 @@
         name: "monitor-{{ openshift_cluster }}-{{ item.port }}"
         ip: "*"
         port: "{{ item.port }}"
-        partition: '{{ openshift_lb.partition }}'
+        partition: "{{ openshift_lb.partition }}"
         send: "{{ item.send }}"
         state: "absent"
         provider:
@@ -257,7 +300,7 @@
         name: "monitor-{{ openshift_cluster }}-80"
         ip: "*"
         port: "80"
-        partition: '{{ openshift_lb.partition }}'
+        partition: "{{ openshift_lb.partition }}"
         state: "absent"
         provider:
           server: "{{ openshift_lb.server }}"

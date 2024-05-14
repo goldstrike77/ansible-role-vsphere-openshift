@@ -17,11 +17,11 @@
     - not openshift_ignition_result.stat.exists | bool
     - openshift_state == "present"
 
-- name: Operation for DNS configuration.
-  ansible.builtin.include_tasks: "dns/{{ openshift_dns.provider | lower }}.yml"
-  when:
-    - openshift_dns is defined
-    - group_names[0] == 'dns'
+#- name: Operation for DNS configuration.
+#  ansible.builtin.include_tasks: "dns/{{ openshift_dns.provider | lower }}.yml"
+#  when:
+#    - openshift_dns is defined
+#    - group_names[0] == 'dns'
 
 - name: Operation for Load Balancer configuration.
   ansible.builtin.include_tasks: "lb/{{ openshift_lb.provider | lower }}.yml"
