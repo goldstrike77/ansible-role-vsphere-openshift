@@ -43,7 +43,6 @@ There are some variables in defaults/main.yml which can (Or needs to) be overrid
 ##### General parameters
 * `openshift_state`: Determine whether or not to install the OpenShift, Valid values are present or absent.
 * `openshift_version`: Specify the OpenShift version.
-* `openshift_release`: Define OpenShift distribution, Valid values are ocp(OpenShift Container Platform) or okd(Origin Community Distribution).
 * `openshift_cluster`: Define OpenShift cluster name.
 * `openshift_domain`: Define the primary domain name.
 * `openshift_sshkey`: The SSH key to authenticate access to your cluster machines.
