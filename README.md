@@ -88,7 +88,6 @@ There are some variables in vars/main.yml:
 ```yaml
 openshift_state: "present"
 openshift_version: "4.15"
-openshift_release: "ocp"
 openshift_cluster: "{{ openshift_release }}-{{ customer }}-{{ environments }}-{{ project }}-{{ group }}-01"
 openshift_domain: "home.local"
 openshift_sshkey: "ssh-rsa AAAA...."
