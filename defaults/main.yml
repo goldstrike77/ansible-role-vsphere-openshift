@@ -5,7 +5,6 @@ openshift_version: "4.15" # Specify the OpenShift version.
 openshift_release: "ocp" # Define OpenShift distribution, Valid values are ocp(OpenShift Container Platform) or okd(Origin Community Distribution).
 openshift_cluster: "{{ openshift_release }}-{{ customer }}-{{ environments }}-{{ project }}-{{ group }}-01" # Define OpenShift cluster name.
 openshift_domain: "home.local" # Define the primary domain name.
-openshift_sshkey: "ssh-rsa AAAA...." # The SSH key to authenticate access to your cluster machines.
 openshift_capabilities: # Determine whether enable or disable optional components prior to installation.
   - "Build"
   - "CloudCredential"

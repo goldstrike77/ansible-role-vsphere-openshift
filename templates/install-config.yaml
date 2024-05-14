@@ -42,7 +42,7 @@ fips: false
 capabilities:
   baselineCapabilitySet: None
   additionalEnabledCapabilities: {{ openshift_capabilities }}
-sshKey: '{{ openshift_sshkey }}'
+sshKey: '{{ openshift_node.sshkey }}'
 {% if openshift_cr.additionaltrustbundle is defined %}
 additionalTrustBundle: |-
 {{ openshift_cr.additionaltrustbundle | indent( width=2, first=True ) }}

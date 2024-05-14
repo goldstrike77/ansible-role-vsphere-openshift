@@ -45,7 +45,6 @@ There are some variables in defaults/main.yml which can (Or needs to) be overrid
 * `openshift_version`: Specify the OpenShift version.
 * `openshift_cluster`: Define OpenShift cluster name.
 * `openshift_domain`: Define the primary domain name.
-* `openshift_sshkey`: The SSH key to authenticate access to your cluster machines.
 * `openshift_capabilities`: Determine whether enable or disable optional components prior to installation.
 
 ##### Network parameters
@@ -90,7 +89,6 @@ openshift_state: "present"
 openshift_version: "4.15"
 openshift_cluster: "{{ openshift_release }}-{{ customer }}-{{ environments }}-{{ project }}-{{ group }}-01"
 openshift_domain: "home.local"
-openshift_sshkey: "ssh-rsa AAAA...."
 openshift_capabilities:
   - "Build"
   - "CloudCredential"
@@ -164,6 +162,7 @@ openshift_dns:
   forward_zone: '{{ openshift_domain }}'
   reverse_zone: "192.in-addr.arpa"
 openshift_node:
+  sshkey: "ssh-rsa AAAA...."
   gateway: "192.168.0.1"
   netmask: "255.255.255.0"
   dns: ["192.168.0.251"]
