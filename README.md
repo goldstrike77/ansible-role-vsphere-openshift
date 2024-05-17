@@ -33,8 +33,10 @@ This role will work on the following VMware vSphere virtualization platform:
 ### Prerequisites:
   - [Adding vCenter root CA certificates to ansible controller system trust.](https://docs.openshift.com/container-platform/4.13/installing/installing_vsphere/installing-vsphere-installer-provisioned.html#installation-adding-vcenter-root-certificates_installing-vsphere-installer-provisioned)
   - [Install the OpenShift command line interface.](https://access.redhat.com/downloads/content/290)
-  - [Install the butane.](https://github.com/coreos/butane)
+  - [Install Butane software.](https://github.com/coreos/butane)
   - Prepare an S3 object storage bucket.
+  - Generating a key pair for cluster node SSH access.
+  - [Obtain and Deploy RHCOS OVA image as vSphere template.](https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/)
 
 ## Role variables
 ### Main parameters #
