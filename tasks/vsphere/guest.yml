@@ -14,7 +14,7 @@
     state: '{% if item.state is defined and item.state == "absent" %}absent{% else %}poweredon{% endif %}'
     force: true
     disk:
-    - size_gb: '{% if openshift_node.specs[item.role].disk is defined %}{{ openshift_node.specs[item.role].disk | int}}{% else %}25{% endif %}'
+    - size_gb: '{% if openshift_node.specs[item.role].disk is defined %}{{ openshift_node.specs[item.role].disk | int}}{% else %}31{% endif %}'
       type: "{{ openshift_node.disktype | default('thin') }}"
       datastore: "{{ openshift_node.datastore }}"
     hardware:

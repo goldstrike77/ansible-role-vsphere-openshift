@@ -99,8 +99,8 @@ openshift_node: # Define compute machines configuration for vSphere..
   template: "template-RHCOS415"
   specs:
     bootstrap:
-      cpucount: 4
-      memory: 8
+      cpucount: 8
+      memory: 16
     master:
       cpucount: 8
       memory: 16

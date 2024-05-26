@@ -22,6 +22,8 @@ __Table of Contents__
 - [Author Information](#author-information)
 - [Donations](#Donations)
 
+>__The ignition, auth and kubeconfig files will be generated in the playbook scaffolding structure.__
+
 ## Overview
 Red Hat OpenShift, the industry's leading hybrid cloud application platform powered by Kubernetes, brings together tested and trusted services to reduce the friction of developing, modernizing, deploying, running, and managing applications. OpenShift delivers a consistent experience across public cloud, on-premise, hybrid cloud, or edge architecture.
 
@@ -174,8 +176,8 @@ openshift_node:
   template: "template-RHCOS415"
   specs:
     bootstrap:
-      cpucount: 4
-      memory: 8
+      cpucount: 8
+      memory: 16
     master:
       cpucount: 8
       memory: 16
