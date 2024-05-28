@@ -309,3 +309,13 @@
           validate_certs: false
       delegate_to: "localhost"
   when: openshift_state == "absent"
+
+- name: Save the running configuration of the BIG-IP.
+  bigip_config:
+    save: true
+    provider:
+      server: "{{ openshift_lb.server }}"
+      user: "{{ openshift_lb.username }}"
+      password: "{{ openshift_lb.password }}"
+      validate_certs: false
+  delegate_to: localhost
