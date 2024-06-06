@@ -133,46 +133,6 @@
           validate_certs: false
       delegate_to: "localhost"
       loop: ["80", "443"]
-    - name: Delete worker nodes to F5 BIG-IP LTM ingress pool.
-      bigip_pool_member:
-        host: "{{ item.0.ip }}"
-        name: "{{ item.0.name }}"
-        pool: "pool-{{ openshift_cluster }}-{{ item.1 }}"
-        port: "{{ item.1 }}"
-        partition: "{{ openshift_lb.partition }}"
-        state: "absent"
-        provider:
-          server: "{{ openshift_lb.server }}"
-          user: "{{ openshift_lb.username }}"
-          password: "{{ openshift_lb.password }}"
-          validate_certs: false
-      delegate_to: "localhost"
-      loop: '{{ openshift_node.hosts | product(["80","443"]) | list  }}'
-      when:
-        - '{{ item.0.role in ["worker"] }}'
-        - "{{ item.0.state is defined }}"
-        - '{{ item.0.state == "absent" }}'
-    - name: Delete F5 BIG-IP LTM Kubernetes nodes.
-      bigip_node:
-        address: "{{ item.ip }}"
-        name: "{{ item.name }}"
-        partition: "{{ openshift_lb.partition }}"
-        monitors: '{% if item.role in ["bootstrap","master"] %}["monitor-{{ openshift_cluster }}-6443","monitor-{{ openshift_cluster }}-22623"]{% else %}["monitor-{{ openshift_cluster }}-80","monitor-{{ openshift_cluster }}-443"]{% endif %}'
-        availability_requirements:
-          at_least: 1
-          type: at_least
-        state: "absent"
-        provider:
-          server: "{{ openshift_lb.server }}"
-          user: "{{ openshift_lb.username }}"
-          password: "{{ openshift_lb.password }}"
-          validate_certs: false
-      delegate_to: "localhost"
-      loop: "{{ openshift_node.hosts }}"
-      when:
-        - '{{ item.role in ["worker"] }}'
-        - "{{ item.state is defined }}"
-        - '{{ item.state == "absent" }}'
   when: openshift_state == "present"
 
 - name: Operation for F5 BIG-IP configuration destruction.
