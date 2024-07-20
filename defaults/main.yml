@@ -7,11 +7,19 @@ openshift_cluster: "{{ openshift_release }}-{{ customer }}-{{ environments }}-{{
 openshift_domain: "home.local" # Define the primary domain name.
 openshift_capabilities: # Determine whether enable or disable optional components prior to installation.
   - "Build"
+  - "CSISnapshot"
   - "CloudCredential"
   - "Console"
-  - "CSISnapshot"
+  - "DeploymentConfig"
+  - "ImageRegistry"
+  - "Insights"
   - "MachineAPI"
+  - "NodeTuning"
+  - "OperatorLifecycleManager"
   - "Storage"
+  - "baremetal"
+  - "marketplace"
+  - "openshift-samples"
 
 # Network parameters #
 openshift_network: # Define OpenShift cluster network configuration.
@@ -45,11 +53,11 @@ openshift_vsphere: # Define installation configuration parameters for vSphere.
 
 # Container Registry parameters #
 openshift_cr: # Define container registry configuration.
-  pullsecret: '{"auths":{"obs.home.local":{"auth":"YWRtaW46UGFzc3cwcmQ=","email":"you@example.com"}}}'
+  pullsecret: '{"auths":{"harbor.home.local":{"auth":"YWRtaW46cGFzc3dvcmQ=","email":"you@example.com"}}}'
   imagecontentsources:
-    - mirrors: ["obs.home.local/ocp4/openshift4"]
+    - mirrors: ["harbor.home.local/openshift/ocp4"]
       source: "quay.io/openshift-release-dev/ocp-release"
-    - mirrors: ["obs.home.local/ocp4/openshift4"]
+    - mirrors: ["harbor.home.local/openshift/ocp4"]
       source: "quay.io/openshift-release-dev/ocp-v4.0-art-dev"
   additionaltrustbundle: | # A PEM-encoded X.509 certificate bundle that is added to the nodes' trusted certificate store.
     -----BEGIN CERTIFICATE-----

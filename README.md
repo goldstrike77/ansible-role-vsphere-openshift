@@ -33,7 +33,6 @@ This role will work on the following VMware vSphere virtualization platform:
   * 7.0.3
 
 ### Prerequisites:
-  - [Adding vCenter root CA certificates to ansible controller system trust.](https://docs.openshift.com/container-platform/4.13/installing/installing_vsphere/installing-vsphere-installer-provisioned.html#installation-adding-vcenter-root-certificates_installing-vsphere-installer-provisioned)
   - [Install the OpenShift command line interface.](https://access.redhat.com/downloads/content/290)
   - [Install Butane software.](https://github.com/coreos/butane)
   - Prepare an S3 object storage bucket.
@@ -127,11 +126,11 @@ openshift_vsphere:
     cpu_expandable_reservations: true
   networks: ["vlan-trunk-portrgoup"]
 openshift_cr:
-  pullsecret: '{"auths":{"obs.home.local":{"auth":"YWRtaW46UGFzc3cwcmQ=","email":"you@example.com"}}}'
+  pullsecret: '{"auths":{"harbor.home.local":{"auth":"YWRtaW46UGFzc3cwcmQ=","email":"you@example.com"}}}'
   imagecontentsources:
-    - mirrors: ["obs.home.local/ocp4/openshift4"]
+    - mirrors: ["harbor.home.local/openshift/ocp4"]
       source: "quay.io/openshift-release-dev/ocp-release"
-    - mirrors: ["obs.home.local/ocp4/openshift4"]
+    - mirrors: ["harbor.home.local/openshift/ocp4"]
       source: "quay.io/openshift-release-dev/ocp-v4.0-art-dev"
   additionaltrustbundle: |
     -----BEGIN CERTIFICATE-----
