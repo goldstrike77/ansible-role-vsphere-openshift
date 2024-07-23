@@ -19,14 +19,18 @@
 
 - name: Remove the manifest files that define the MachineSets because create and manage these resources yourself.
   file:
-    path: "{{ item }}"
+    path: "ignition/openshift/{{ item }}"
     state: "absent"
   loop:
-    - "ignition/99_openshift-cluster-api_master-machines-0.yaml"
-    - "ignition/99_openshift-cluster-api_master-machines-1.yaml"
-    - "ignition/99_openshift-cluster-api_master-machines-2.yaml"
-    - "ignition/99_openshift-cluster-api_worker-machineset-0.yaml"
-    - "ignition/99_openshift-machine-api_master-control-plane-machine-set.yaml"
+    - "99_openshift-cluster-api_master-machines-0.yaml"
+    - "99_openshift-cluster-api_master-machines-1.yaml"
+    - "99_openshift-cluster-api_master-machines-2.yaml"
+    - "99_openshift-cluster-api_worker-machineset-0.yaml"
+
+- name: Modify the manifest to make the control plane nodes a schedulable attribute.
+  template:
+    src: "cluster-scheduler-02-config.yml"
+    dest: "ignition/manifests/cluster-scheduler-02-config.yml"
 
 - name: Create a Butane config including the chrony time service contents.
   template:

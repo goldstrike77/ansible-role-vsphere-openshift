@@ -5,6 +5,7 @@ openshift_version: "4.15" # Specify the OpenShift version.
 openshift_release: "ocp" # Define OpenShift distribution, Valid values are ocp(OpenShift Container Platform) or okd(Origin Community Distribution).
 openshift_cluster: "{{ openshift_release }}-{{ customer }}-{{ environments }}-{{ project }}-{{ group }}-01" # Define OpenShift cluster name.
 openshift_domain: "home.local" # Define the primary domain name.
+openshift_masters_schedulable: false # Determine whether enable or disable control plane nodes is schedulable.
 openshift_capabilities: # Determine whether enable or disable optional components prior to installation.
   - "Build"
   - "CSISnapshot"

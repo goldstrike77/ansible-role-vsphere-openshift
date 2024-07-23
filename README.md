@@ -48,6 +48,7 @@ There are some variables in defaults/main.yml which can (Or needs to) be overrid
 * `openshift_version`: Specify the OpenShift version.
 * `openshift_cluster`: Define OpenShift cluster name.
 * `openshift_domain`: Define the primary domain name.
+* `openshift_masters_schedulable`: Determine whether enable or disable control plane nodes is schedulable.
 * `openshift_capabilities`: Determine whether enable or disable optional components prior to installation.
 
 ##### Network parameters
@@ -92,6 +93,7 @@ openshift_state: "present"
 openshift_version: "4.15"
 openshift_cluster: "{{ openshift_release }}-{{ customer }}-{{ environments }}-{{ project }}-{{ group }}-01"
 openshift_domain: "home.local"
+openshift_masters_schedulable: false
 openshift_capabilities:
   - "Build"
   - "CloudCredential"
