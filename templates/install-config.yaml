@@ -6,13 +6,13 @@ compute:
   hyperthreading: Enabled
   name: worker
   platform: {}
-  replicas: {{ openshift_master | count }}
+  replicas: 0
 controlPlane:
   architecture: amd64
   hyperthreading: Enabled
   name: master
   platform: {}
-  replicas: {{ openshift_worker | count }}
+  replicas: 3
 metadata:
   creationTimestamp: null
   name: {{ openshift_cluster }}
