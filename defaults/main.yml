@@ -128,12 +128,12 @@ openshift_node: # Define compute machines configuration for vSphere..
     - { name: "s-worker-03", ip: "192.168.0.126", role: "worker" }
 
 # Load Balancer parameters #
-openshift_lb: # Define load balancer provider configuration.
-  provider: "F5"
-  server: "192.168.0.170"
-  user: "admin"
-  password: "password"
-  partition: "{{ customer }}-{{ environments }}-{{ project }}-{{ group }}"
+#openshift_lb: # Define load balancer provider configuration.
+#  provider: "F5"
+#  server: "192.168.0.170"
+#  user: "admin"
+#  password: "password"
+#  partition: "{{ customer }}-{{ environments }}-{{ project }}-{{ group }}"
 
 # Service Mesh #
 customer: "it" # Define the customer name.

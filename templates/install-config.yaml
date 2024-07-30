@@ -25,6 +25,9 @@ networking:
   networkType: OVNKubernetes
   serviceNetwork: [{{ openshift_network.service }}]
 platform:
+{% if openshift_lb is defined %}
+  none: {}
+{% else %}
   vsphere:
     vCenter: {{ openshift_vsphere.vcenter }}
     username: {{ openshift_vsphere.user }}@{{ openshift_vsphere.vcenter }}
@@ -36,6 +39,7 @@ platform:
     resourcePool: /{{ openshift_vsphere.datacenter }}/host/{{ openshift_vsphere.cluster }}/{{ openshift_vsphere.resourcepool.name | lower }}
     apiVIPs: [{{ openshift_network.apivips }}]
     ingressVIPs: [{{ openshift_network.ingressvips }}]
+{% endif %}
 publish: External
 pullSecret: '{{ openshift_cr.pullsecret }}'
 fips: false
