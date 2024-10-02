@@ -129,7 +129,7 @@ openshift_vsphere:
   networks: ["vlan-trunk-portrgoup"]
 openshift_cr:
   pullsecret: '{"auths":{"harbor.home.local":{"auth":"YWRtaW46UGFzc3cwcmQ=","email":"you@example.com"}}}'
-  imagecontentsources:
+  imagedigestsources:
     - mirrors: ["harbor.home.local/openshift/ocp4"]
       source: "quay.io/openshift-release-dev/ocp-release"
     - mirrors: ["harbor.home.local/openshift/ocp4"]

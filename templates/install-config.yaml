@@ -51,9 +51,9 @@ sshKey: '{{ openshift_node.sshkey }}'
 additionalTrustBundle: |-
 {{ openshift_cr.additionaltrustbundle | indent( width=2, first=True ) }}
 {% endif %}
-{% if openshift_cr.imagecontentsources is defined and openshift_cr.imagecontentsources | length > 0 %}
-imageContentSources:
-{% for i in openshift_cr.imagecontentsources %}
+{% if openshift_cr.imagedigestsources is defined and openshift_cr.imagedigestsources | length > 0 %}
+imageDigestSources:
+{% for i in openshift_cr.imagedigestsources %}
 - mirrors: {{ i.mirrors }}
   source: {{ i.source }}
 {% endfor %}

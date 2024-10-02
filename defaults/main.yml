@@ -55,7 +55,7 @@ openshift_vsphere: # Define installation configuration parameters for vSphere.
 # Container Registry parameters #
 openshift_cr: # Define container registry configuration.
   pullsecret: '{"auths":{"harbor.home.local":{"auth":"YWRtaW46cGFzc3dvcmQ=","email":"you@example.com"}}}'
-  imagecontentsources:
+  imagedigestsources:
     - mirrors: ["harbor.home.local/openshift/ocp4"]
       source: "quay.io/openshift-release-dev/ocp-release"
     - mirrors: ["harbor.home.local/openshift/ocp4"]
