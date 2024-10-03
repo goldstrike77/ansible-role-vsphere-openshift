@@ -25,21 +25,27 @@ networking:
   networkType: OVNKubernetes
   serviceNetwork: [{{ openshift_network.service }}]
 platform:
-{% if openshift_lb is defined %}
-  none: {}
-{% else %}
   vsphere:
-    vCenter: {{ openshift_vsphere.vcenter }}
-    username: {{ openshift_vsphere.user }}@{{ openshift_vsphere.vcenter }}
-    password: {{ openshift_vsphere.password }}
-    datacenter: {{ openshift_vsphere.datacenter }}
-    cluster: {{ openshift_vsphere.cluster }}
-    defaultDatastore: /{{ openshift_vsphere.datacenter }}/datastore/{{ openshift_vsphere.defaultdatastore }}
-    folder: /{{ openshift_vsphere.datacenter }}/vm/{{ openshift_vsphere.folder | lower }}
-    resourcePool: /{{ openshift_vsphere.datacenter }}/host/{{ openshift_vsphere.cluster }}/{{ openshift_vsphere.resourcepool.name | lower }}
+    failureDomains: 
+    - name: default
+      region: default
+      server: "{{ openshift_vsphere.vcenter }}"
+      topology:
+        computeCluster: "/{{ openshift_vsphere.datacenter }}/host/{{ openshift_vsphere.cluster }}"
+        datacenter: "{{ openshift_vsphere.datacenter }}"
+        datastore: "/{{ openshift_vsphere.datacenter }}/datastore/{{ openshift_vsphere.datastore }}" 
+        networks: {{ openshift_vsphere.networks }}
+      zone: default
+    vcenters:
+    - datacenters:
+      - "{{ openshift_vsphere.datacenter }}"
+      password: {{ openshift_vsphere.password }}
+      port: 443
+      server: {{ openshift_vsphere.vcenter }}
+      user: "{{ openshift_vsphere.user }}@{{ openshift_vsphere.vcenter }}"
+    diskType: {{ openshift_vsphere.disktype | default('thin') }}
     apiVIPs: [{{ openshift_network.apivips }}]
     ingressVIPs: [{{ openshift_network.ingressvips }}]
-{% endif %}
 publish: External
 pullSecret: '{{ openshift_cr.pullsecret }}'
 fips: false

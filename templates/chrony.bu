@@ -1,5 +1,5 @@
 variant: openshift
-version: '{{openshift_version }}.0'
+version: '{{ openshift_version }}.0'
 metadata:
   name: 99-{{ item }}-chrony
   labels:

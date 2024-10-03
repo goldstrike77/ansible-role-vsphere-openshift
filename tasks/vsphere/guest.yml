@@ -6,7 +6,7 @@
     password: "{{ openshift_vsphere.password }}"
     datacenter: "{{ openshift_vsphere.datacenter }}"
     cluster: "{{ openshift_vsphere.cluster }}"
-    datastore: "{{ openshift_node.datastore }}"
+    datastore: "{{ openshift_vsphere.datastore }}"
     resource_pool: "{% if openshift_vsphere_rp_info.resource_pool_info | json_query('[*].name') | length > 1 %}{{ openshift_vsphere.resourcepool.name }}{% endif %}"
     folder: "{{ openshift_vsphere.folder }}"
     name: "{{ item.name }}"
@@ -15,8 +15,8 @@
     force: true
     disk:
     - size_gb: '{% if openshift_node.specs[item.role].disk is defined %}{{ openshift_node.specs[item.role].disk | int}}{% else %}31{% endif %}'
-      type: "{{ openshift_node.disktype | default('thin') }}"
-      datastore: "{{ openshift_node.datastore }}"
+      type: "{{ openshift_vsphere.disktype | default('thin') }}"
+      datastore: "{{ openshift_vsphere.datastore }}"
     hardware:
       memory_mb: "{{ openshift_node.specs[item.role].memory | int * 1024 }}"
       num_cpus: "{{ openshift_node.specs[item.role].cpucount | int }}"

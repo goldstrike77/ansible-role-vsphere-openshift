@@ -45,7 +45,6 @@ There are some variables in defaults/main.yml which can (Or needs to) be overrid
 
 ##### General parameters
 * `openshift_state`: Determine whether or not to install the OpenShift, Valid values are present or absent.
-* `openshift_version`: Specify the OpenShift version.
 * `openshift_cluster`: Define OpenShift cluster name.
 * `openshift_domain`: Define the primary domain name.
 * `openshift_masters_schedulable`: Determine whether enable or disable control plane nodes is schedulable.
@@ -69,9 +68,6 @@ There are some variables in defaults/main.yml which can (Or needs to) be overrid
 ##### Node parameters
 * `openshift_node`: Define compute machines configuration for vSphere..
 
-##### Load Balancer parameters
-* `openshift_lb`: Define load balancer provider configuration.
-
 ##### Service Mesh
 * `customer`: Define the customer name.
 * `environments`: Define the service environment.
@@ -90,7 +86,6 @@ There are some variables in vars/main.yml:
 ### Combination of group vars and playbook
 ```yaml
 openshift_state: "present"
-openshift_version: "4.15"
 openshift_cluster: "{{ openshift_release }}-{{ customer }}-{{ environments }}-{{ project }}-{{ group }}-01"
 openshift_domain: "home.local"
 openshift_masters_schedulable: false
@@ -114,7 +109,8 @@ openshift_vsphere:
   password: "password"
   cluster: "cn-north-1"
   datacenter: "cn-north"
-  defaultdatastore: "ds-san-lun0"
+  datastore: "ds-san-lun1"
+  disktype: "thin"
   folder: "{{ customer }}/{{ environments }}/{{ project }}/{{ group }}"
   resourcepool:
     name: "rp-{{ customer }}-{{ environments }}-{{ project }}-{{ group }}"
@@ -173,7 +169,6 @@ openshift_node:
   dns: ["192.168.0.251"]
   ntp: ["ntp1.aliyun.com", "ntp2.aliyun.com", "ntp3.aliyun.com"]
   datastore: "ds-san-lun1"
-  disktype: "thin"
   template: "template-RHCOS415"
   specs:
     bootstrap:
@@ -195,12 +190,6 @@ openshift_node:
     - { name: "s-worker-01", ip: "192.168.0.124", role: "worker" }
     - { name: "s-worker-02", ip: "192.168.0.125", role: "worker" }
     - { name: "s-worker-03", ip: "192.168.0.126", role: "worker" }
-openshift_lb:
-  provider: "F5"
-  server: "192.168.0.170"
-  user: "admin"
-  password: "password"
-  partition: "{{ customer }}-{{ environments }}-{{ project }}-{{ group }}"
 customer: "it"
 environments: "prd"
 project: "shared"

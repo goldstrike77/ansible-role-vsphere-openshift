@@ -1,7 +1,6 @@
 ---
 # General parameters #
 openshift_state: "present" # Determine whether or not to install the OpenShift, Valid values are present or absent.
-openshift_version: "4.15" # Specify the OpenShift version.
 openshift_release: "ocp" # Define OpenShift distribution, Valid values are ocp(OpenShift Container Platform) or okd(Origin Community Distribution).
 openshift_cluster: "{{ openshift_release }}-{{ customer }}-{{ environments }}-{{ project }}-{{ group }}-01" # Define OpenShift cluster name.
 openshift_domain: "home.local" # Define the primary domain name.
@@ -13,6 +12,7 @@ openshift_capabilities: # Determine whether enable or disable optional component
   - "Console"
   - "DeploymentConfig"
   - "ImageRegistry"
+  - "Ingress"
   - "Insights"
   - "MachineAPI"
   - "NodeTuning"
@@ -38,7 +38,8 @@ openshift_vsphere: # Define installation configuration parameters for vSphere.
   password: "password" # The password associated with the vSphere user.
   cluster: "cn-north-1" # Defines the vSphere compute cluster.
   datacenter: "cn-north" # Defines the datacenters where OpenShift Container Platform virtual machines (VMs) operate.
-  defaultdatastore: "ds-san-lun0" # The path to the vSphere datastore that holds virtual machine files, templates, and ISO images.
+  datastore: "ds-san-lun1" # The path to the vSphere datastore that holds virtual machine files, templates, and ISO images.
+  disktype: "thin" # The vSphere disk provisioning method.
   folder: "{{ customer }}/{{ environments }}/{{ project }}/{{ group }}" # The absolute path of an existing folder where the installation program creates the virtual machines.
   resourcepool: # The absolute path of an existing resource pool where the installation program creates the virtual machines.
     name: "rp-{{ customer }}-{{ environments }}-{{ project }}-{{ group }}"
@@ -103,8 +104,6 @@ openshift_node: # Define compute machines configuration for vSphere..
   netmask: "255.255.255.0"
   dns: ["192.168.0.251"]
   ntp: ["ntp1.aliyun.com", "ntp2.aliyun.com", "ntp3.aliyun.com"]
-  datastore: "ds-san-lun1"
-  disktype: "thin"
   template: "template-RHCOS415"
   specs:
     bootstrap:
@@ -126,14 +125,6 @@ openshift_node: # Define compute machines configuration for vSphere..
     - { name: "s-worker-01", ip: "192.168.0.124", role: "worker" }
     - { name: "s-worker-02", ip: "192.168.0.125", role: "worker" }
     - { name: "s-worker-03", ip: "192.168.0.126", role: "worker" }
-
-# Load Balancer parameters #
-#openshift_lb: # Define load balancer provider configuration.
-#  provider: "F5"
-#  server: "192.168.0.170"
-#  user: "admin"
-#  password: "password"
-#  partition: "{{ customer }}-{{ environments }}-{{ project }}-{{ group }}"
 
 # Service Mesh #
 customer: "it" # Define the customer name.

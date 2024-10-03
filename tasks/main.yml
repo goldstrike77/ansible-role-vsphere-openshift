@@ -1,4 +1,12 @@
 ---
+- name: Get OpenShift version information.
+  shell: "openshift-install version | awk 'NR==1' | awk '{print $2}' | cut -c1-4,4"
+  delegate_to: "localhost"
+  register: openshift_install_version
+
+- set_fact: 
+    openshift_version={{ openshift_install_version.stdout }}
+
 - name: Check if ignition file exists.
   stat:
     path: "ignition/bootstrap.ign"
@@ -22,10 +30,6 @@
   when:
     - openshift_dns is defined
     - group_names[0] == 'dns'
-
-- name: Operation for Load Balancer configuration.
-  ansible.builtin.include_tasks: "lb/{{ openshift_lb.provider | lower }}.yml"
-  when: openshift_lb is defined
 
 - name: Manage VMware vSphere resource pools.
   ansible.builtin.include_tasks: "vsphere/resource_pool.yml"
